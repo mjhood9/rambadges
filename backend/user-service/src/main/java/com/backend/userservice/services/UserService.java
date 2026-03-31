@@ -1,6 +1,7 @@
 package com.backend.userservice.services;
 
 import com.backend.userservice.dao.entities.Users;
+import com.backend.userservice.dao.repositories.RoleRepository;
 import com.backend.userservice.dao.repositories.UserRepository;
 import com.backend.userservice.exception.UserNotFoundException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
@@ -9,6 +10,7 @@ import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,11 +24,17 @@ public class UserService {
     private final UserRepository userRepository;
     private final CircuitBreaker circuitBreaker;
     private final Retry retry;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository,
+                       RoleRepository roleRepository,
+                       PasswordEncoder passwordEncoder,
                        CircuitBreakerRegistry circuitBreakerRegistry,
                        RetryRegistry retryRegistry) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
         this.circuitBreaker = circuitBreakerRegistry.circuitBreaker("user-service");
         this.retry = retryRegistry.retry("user-service");
     }

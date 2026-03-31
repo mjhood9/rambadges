@@ -1,0 +1,79 @@
+@import url('https://db.onlinewebfonts.com/c/f78bcde21d874130c88de04c43f1cda4?family=Canaro+W00+SemiBold');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+.sign-in-page {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+/* White diagonal shape */
+.sign-in-page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 55%;
+    height: 100%;
+    clip-path: polygon(20% 0%, 100% 0%, 100% 100%, 0% 100%);
+    z-index: 0;
+}
+
+.page-left {
+    flex: 1;
+    padding: 40px 120px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+}
+
+.page-right {
+    width: 420px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+}
+
+.signin-img {
+    width: 1030px;
+    height: 100vh;
+    object-fit: cover;
+}
+
+.form-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.page-title {
+    font-size: 40px;
+    font-weight: 700;
+    color: #424242;
+    margin-bottom: 32px;
+}
+
+.logos {
+    position: absolute;
+    top: 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.ram-logo-img{
+    width:125px;
+    height:125px;
+}
+
+.oneworld-logo-img{
+    width:125px;
+    height:125px;
+}

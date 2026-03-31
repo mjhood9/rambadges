@@ -1,0 +1,81 @@
+.select-role-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.select-role-card {
+    background: white;
+    border-radius: 20px;
+    padding: 48px;
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+
+.select-role-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+}
+
+.select-role-subtitle {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 32px;
+}
+
+.roles-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.role-card {
+    background: #f9f5f0;
+    border: 2px solid #ede4d4;
+    border-radius: 14px;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.role-card:hover {
+    border-color: #c8102e;
+    background: #fff5f5;
+    color: #c8102e;
+}
+
+.role-card i {
+    font-size: 32px;
+    color: #c8102e;
+}
+
+.select-role-logo {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.select-role-logo .ram-logo-img {
+    height: 125px;
+    width: auto;
+    object-fit: contain;
+}
+
+.select-role-logo .oneworld-logo-img{
+    height:125px;
+    width: auto;
+    object-fit: contain;
+}

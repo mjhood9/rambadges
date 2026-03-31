@@ -33,9 +33,11 @@ public class AuthService {
 
     @CircuitBreaker(name = "user-service", fallbackMethod = "fallbackSignUp")
     @Retry(name = "user-service")
-    public AuthResponse signUp(SignUpRequest request) {
-        if (userRepository.existsByUsername(request.getUsername())) {
-            throw new RuntimeException("Username already exists");
+    public SignUpResponse signUp(SignUpRequest request) {
+        String fullName = request.getFullName();
+
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email already exists");
         }
 
         Set<Role> roles = request.getRoles().stream()
@@ -44,25 +46,29 @@ public class AuthService {
                 .collect(Collectors.toSet());
 
         Users user = Users.builder()
-                .username(request.getUsername())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .username(fullName)
+                .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .roles(roles)
                 .build();
 
         userRepository.save(user);
 
-        return AuthResponse.builder()
-                .token(jwtService.generateToken(user))
+        return SignUpResponse.builder()
+                .message("User created successfully")
                 .username(user.getUsername())
-                .roles(roles.stream().map(r -> r.getName().name()).collect(Collectors.toSet()))
+                .fullName(user.getFirstName() + " " + user.getLastName())
+                .email(user.getEmail())
                 .build();
     }
 
     @CircuitBreaker(name = "user-service", fallbackMethod = "fallbackSignIn")
     @Retry(name = "user-service")
     public AuthResponse signIn(SignInRequest request) {
-        Users user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        Users user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + request.getEmail()));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid password");
@@ -71,7 +77,11 @@ public class AuthService {
         return AuthResponse.builder()
                 .token(jwtService.generateToken(user))
                 .username(user.getUsername())
-                .roles(user.getRoles().stream().map(r -> r.getName().name()).collect(Collectors.toSet()))
+                .fullName(user.getFirstName() + " " + user.getLastName())
+                .email(user.getEmail())
+                .roles(user.getRoles().stream()
+                        .map(r -> r.getName().name())
+                        .collect(Collectors.toSet()))
                 .build();
     }
 

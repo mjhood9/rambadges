@@ -1,0 +1,12 @@
+@import url('https://db.onlinewebfonts.com/c/f78bcde21d874130c88de04c43f1cda4?family=Canaro+W00+SemiBold');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Canaro W00 SemiBold';
+}
+
+body {
+    font-family: 'Canaro W00 SemiBold';
+}

@@ -2,7 +2,6 @@ package com.backend.userservice.web.controllers;
 
 import com.backend.userservice.dao.dtos.*;
 import com.backend.userservice.services.AuthService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +16,7 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> signUp(@RequestBody SignUpRequest request) {
+    public ResponseEntity<SignUpResponse> signUp(@RequestBody SignUpRequest request) {
         return ResponseEntity.ok(authService.signUp(request));
     }
 
