@@ -27,80 +27,140 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 24px;
+    margin-top: 45px;
 }
 
+/* Tabs container */
 .entite-tabs {
+    position: relative;
     display: flex;
-    gap: 8px;
+    width:350px;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 30px;
+    overflow: hidden;
 }
 
+/* The sliding background */
+.tab-slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%; /* two tabs = 50% each */
+    height: 100%;
+    background: rgba(255,255,255,0.3); /* highlight color */
+    border: 10px solid rgba(255,255,255,0.3);
+    border-radius: 30px;
+    transition: transform 0.3s ease;
+    z-index: 1;
+    font-size:12px;
+}
+
+/* Buttons on top of slider */
 .tab-btn {
-    padding: 8px 20px;
-    border-radius: 50px;
-    border: 1.5px solid #ddd;
-    background: white;
-    font-family: 'Canaro', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    color: #1a1a1a;
+    flex: 1;
+    padding: 10px 20px;
+    background: transparent;
+    border: none;
     cursor: pointer;
-    transition: all 0.2s;
+    z-index: 2;
+    position: relative;
+    color: #707070; /* default text color */
+    transition: color 0.3s ease;
+    font-size:12px;
 }
 
+/* Active tab text color */
 .tab-btn.active {
-    background: #1a1a1a;
-    color: white;
-    border-color: #1a1a1a;
+    color: #bb9256; /* or darker if needed */
+    font-weight: 500;
 }
 
 .entite-search {
+    display: flex;
+    align-items: center; /* keeps button + input aligned */
+    gap: 10px;
+}
+
+/* wrapper */
+.search-box {
     position: relative;
     display: flex;
     align-items: center;
 }
 
-.entite-search input {
-    padding: 8px 40px 8px 16px;
+/* input */
+.search-box input {
+    height: 36px; /* ✅ force consistent height */
+    padding: 0 40px 0 16px; /* remove vertical padding */
     border: 1.5px solid #ddd;
-    border-radius: 50px;
+    border-radius: 15px;
     font-family: 'Canaro', sans-serif;
-    font-size: 13px;
+    font-size: 14px;
     outline: none;
     width: 220px;
-    background: #fafafa;
+    background: rgba(255,255,255,0.3);
+    display: flex;
+    align-items: center;
 }
 
-.entite-search input:focus { border-color: #888; }
-
-.entite-search i {
+/* icon perfectly centered */
+.search-box i {
     position: absolute;
-    right: 14px;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
     color: #aaa;
     font-size: 18px;
+    pointer-events: none;
+}
+
+/* button aligned with input */
+.add-btn {
+    height: 36px; /* ✅ match input height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    background: #674459;
+    border: none;
+    padding: 0 14px;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.add-btn i{
+    border: 1px solid white;
+    border-radius: 50px;
+    font-size: 12px;
+    margin-right:10px;
 }
 
 .entite-table {
     width: 100%;
     border-collapse: collapse;
+    background:rgba(255,255,255,0.3);
+    border-radius:10px;
 }
 
 .entite-table thead tr {
-    border-bottom: 1.5px solid #eee;
+    border-bottom: 1.5px solid #ddd;
 }
 
 .entite-table th {
     padding: 12px 16px;
     text-align: left;
     font-size: 13px;
-    font-weight: 700;
-    color: #c8102e;
+    color: #bb9256;
+    font-weight:400;
 }
 
 .entite-table td {
     padding: 14px 16px;
     font-size: 13px;
     color: #1a1a1a;
-    border-bottom: 1px solid #f0ebe3;
+    border-bottom: 1px solid #ddd;
 }
 
 .action-btns {
@@ -110,9 +170,9 @@
 }
 
 .action-btn {
-    width: 32px;
+    width: 48px;
     height: 32px;
-    border-radius: 50%;
+    border-radius: 20px;
     border: 1.5px solid #ddd;
     background: white;
     display: flex;
@@ -120,12 +180,10 @@
     justify-content: center;
     cursor: pointer;
     font-size: 16px;
-    color: #555;
+    color: #674459;
     transition: all 0.2s;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
-
-.action-btn:hover { border-color: #c8102e; color: #c8102e; }
-.action-btn.delete:hover { border-color: #e53935; color: #e53935; }
 
 .entite-bottom-bar {
     display: flex;
@@ -170,3 +228,226 @@
 .page-btn.active { background: #6b2d5e; color: white; border-color: #6b2d5e; }
 .page-btn:hover:not(.active) { border-color: #888; }
 .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.1); /* slight dim behind */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+/* small clean white card */
+.modal-content {
+    background-color: #f1f1f1 !important; /* fully opaque white */
+    backdrop-filter: none !important;     /* remove any blur/glass effect */
+    max-width: 40%;  /* never go bigger than 90% of viewport */
+    min-width: 200px; /* keep compact on small screens */
+    padding: 25px 20px;
+    border-radius: 12px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15); /* soft shadow */
+    position: relative;
+    /* pop animation */
+    transform: scale(0.8);
+    opacity: 0;
+    animation: popIn 0.4s ease forwards;
+}
+
+.modal-content.closing {
+    animation: popOut 0.4s ease forwards;
+}
+
+/* pop animations */
+@keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes popOut {
+    from { transform: scale(1); opacity: 1; }
+    to { transform: scale(0.8); opacity: 0; }
+}
+
+/* title */
+.modal-content h2 {
+    margin-bottom: 15px;
+    font-weight: 600;
+    font-size:18px;
+    color:#674459;
+}
+
+/* form */
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.modal-form .form-group {
+    margin-bottom: 6px; /* smaller spacing between fields */
+}
+
+.lbl-entite{
+    margin-top: 8px;
+    font-weight: 600;
+}
+
+.modal-form label {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 3px; /* minimal margin above input */
+}
+
+/* input */
+.modal-form input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 15px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s;
+    background: #ffff;
+}
+
+.modal-form select {
+    width: 100%;
+    padding: 10px 12px;       /* same as input */
+    border-radius: 15px;      /* same as input */
+    border: 1px solid #ddd;   /* same as input */
+    font-size: 14px;           /* same as input */
+    outline: none;
+    transition: 0.2s;
+    background: #ffff;         /* same as input */
+    -webkit-appearance: none;  /* remove default arrow on some browsers */
+    -moz-appearance: none;
+    appearance: none;
+    cursor: pointer;           /* pointer for clarity */
+}
+
+.modal-form input,
+.modal-form select {
+    margin: 0;       /* remove default margin */
+    line-height: 1;  /* remove extra height from line */
+}
+
+.modal-form input,
+.modal-form select {
+    display: block;
+}
+
+/* Optional: add arrow icon manually for better styling */
+.modal-form select:disabled {
+    background: rgba(255, 255, 255, 0.1); /* match your disabled effect */
+    cursor: not-allowed;
+}
+
+.modal-form input:focus {
+    border-color: #aaa;
+}
+
+/* buttons container */
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.modal-actions1 {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top:60px;
+}
+
+/* cancel button */
+.cancel-btn {
+    flex:1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* keep text centered */
+    padding: 8px 12px 8px 30px; /* space on left for icon */
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    color: #674459;
+    cursor: pointer;
+}
+
+/* icon on the left */
+.cancel-btn i {
+    position: absolute;
+    left: 10px;
+    font-size: 14px;
+}
+
+/* submit button */
+.submit-btn {
+    flex:1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* center text */
+    padding: 8px 30px 8px 12px; /* extra right space for icon */
+    border-radius: 20px;
+    border: none;
+    background: #c20831;
+    color: white;
+    cursor: pointer;
+}
+
+/* icon on the right */
+.submit-btn i {
+    position: absolute;
+    right: 10px;
+    font-size: 14px;
+}
+
+/* close button */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    color: #cdcdcd;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 35px;
+    line-height: 28px;
+}
+.roles {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.role-badge {
+    background: rgba(131, 131, 131, 0.1);
+    color: #838383;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.flex-row {
+    display: flex;
+    justify-content:space-between;
+    gap: 10px;
+}
+
+.flex-row input {
+    flex: 1;
+}
+
+select:disabled {
+    background-color: rgba(131, 131, 131, 0.1); /* 10% transparent gray */
+    cursor: not-allowed;
+}

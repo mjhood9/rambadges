@@ -1,12 +1,155 @@
-@import url('https://db.onlinewebfonts.com/c/f78bcde21d874130c88de04c43f1cda4?family=Canaro+W00+SemiBold');
+/* CANARO FONT FAMILY */
 
+/* Black */
+@font-face {
+    font-family: 'Canaro';
+    src: url('../fonts/Canaro-Black.woff') format('opentype');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Canaro';
+    src: url('../fonts/Canaro-BlackItalic.woff') format('opentype');
+    font-weight: 900;
+    font-style: italic;
+    font-display: swap;
+}
+
+/* ExtraBold */
+@font-face {
+    font-family: 'Canaro';
+    src: url('../fonts/Canaro-ExtraBold.woff') format('opentype');
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Canaro';
+    src: url('../fonts/Canaro-ExtraBoldItalic.woff') format('opentype');
+    font-weight: 800;
+    font-style: italic;
+    font-display: swap;
+}
+
+/* Bold */
+@font-face {
+    font-family: 'Canaro';
+    src: url('../fonts/Canaro-Bold.woff') format('opentype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Canaro';
+    src: url('../fonts/Canaro-BoldItalic.woff') format('opentype');
+    font-weight: 700;
+    font-style: italic;
+    font-display: swap;
+}
+
+/* Semibold */
+@font-face {
+    font-family: 'Canaro';
+    src: url('../fonts/Canaro-SemiBold.woff') format('opentype');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Canaro';
+    src: url('../fonts/Canaro-SemiBoldItalic.woff') format('opentype');
+    font-weight: 600;
+    font-style: italic;
+    font-display: swap;
+}
+
+/* Medium */
+@font-face {
+    font-family: 'Canaro';
+    src: url('../fonts/Canaro-Medium.woff') format('opentype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Canaro';
+    src: url('../fonts/Canaro-MediumItalic.woff') format('opentype');
+    font-weight: 500;
+    font-style: italic;
+    font-display: swap;
+}
+
+/* Book (Normal) */
+@font-face {
+    font-family: 'Canaro';
+    src: url('../fonts/Canaro-Book.woff') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Canaro';
+    src: url('../fonts/Canaro-BookItalic.woff') format('opentype');
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+
+/* Light */
+@font-face {
+    font-family: 'Canaro';
+    src: url('../fonts/Canaro-Light.woff') format('opentype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Canaro';
+    src: url('../fonts/Canaro-LightItalic.woff') format('opentype');
+    font-weight: 300;
+    font-style: italic;
+    font-display: swap;
+}
+
+/* ExtraLight */
+@font-face {
+    font-family: 'Canaro';
+    src: url('../fonts/Canaro-ExtraLight.woff') format('opentype');
+    font-weight: 200;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Canaro';
+    src: url('../fonts/Canaro-ExtraLightItalic.woff') format('opentype');
+    font-weight: 200;
+    font-style: italic;
+    font-display: swap;
+}
+
+/* Thin */
+@font-face {
+    font-family: 'Canaro';
+    src: url('../fonts/Canaro-Thin.woff') format('opentype');
+    font-weight: 100;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Canaro';
+    src: url('../fonts/Canaro-ThinItalic.woff') format('opentype');
+    font-weight: 100;
+    font-style: italic;
+    font-display: swap;
+}
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Canaro W00 SemiBold';
+    font-family: 'Canaro', sans-serif;
 }
 
 body {
-    font-family: 'Canaro W00 SemiBold';
+    font-family: 'Canaro', sans-serif;
 }
