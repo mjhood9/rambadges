@@ -2,13 +2,19 @@ import { useState, useEffect } from 'react';
 import { Helmet } from "react-helmet-async";
 import axios from 'axios';
 import "../assets/styles/main.css";
+import CustomSelect from "../components/layout/CustomSelect";
 
 const AdminEntite = () => {
     const [entites, setEntites] = useState([]);
     const [search, setSearch] = useState('');
     const [activeTab, setActiveTab] = useState('attribuees');
-    const [currentPage, setCurrentPage] = useState(1);
-    const [perPage, setPerPage] = useState(7);
+    const [currentPageAssigned, setCurrentPageAssigned] = useState(1);
+    const [currentPageGestion, setCurrentPageGestion] = useState(1);
+
+    const [perPageAttribuees, setPerPageAttribuees] = useState(1);
+    const [perPageGestion, setPerPageGestion] = useState(1);
+
+    const [assignedUsers, setAssignedUsers] = useState([]);
 
     const [showModal, setShowModal] = useState(false);
     const [newEntiteName, setNewEntiteName] = useState('');
@@ -36,15 +42,74 @@ const AdminEntite = () => {
         }
     };
 
-    useEffect(() => { fetchEntites(); }, []);
+    const fetchAssignedUsers = async () => {
+        try {
+            const response = await axios.get(
+                'http://localhost:8080/api/users/with-entite', // fetch all assigned users
+                {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                }
+            );
+            setAssignedUsers(response.data);
+        } catch (err) {
+            console.error('Error fetching assigned users:', err);
+        }
+    };
+
+    useEffect(() => {
+        fetchEntites();
+        fetchAssignedUsers();
+    }, []);
 
     // Filter entities locally based on search input
     const filtered = entites.filter(e =>
         e.name.toLowerCase().includes(search.toLowerCase())
     );
 
-    const totalPages = Math.ceil(filtered.length / perPage);
-    const paginated = filtered.slice((currentPage - 1) * perPage, currentPage * perPage);
+    const filteredAssignedUsers = assignedUsers.filter(user =>
+        user.entite?.name.toLowerCase().includes(search.toLowerCase())
+    );
+
+    // For "attribuees" table
+    const totalPagesAttribuees = Math.ceil(filteredAssignedUsers.length / perPageAttribuees);
+    const paginatedAssignedUsers = filteredAssignedUsers.slice(
+        (currentPageAssigned - 1) * perPageAttribuees,
+        currentPageAssigned * perPageAttribuees
+    );
+
+// For "gestion" table
+    const totalPagesGestion = Math.ceil(filtered.length / perPageGestion);
+    const paginatedEntites = filtered.slice(
+        (currentPageGestion - 1) * perPageGestion,
+        currentPageGestion * perPageGestion
+    );
+
+
+    const getPaginationRange = (current, total) => {
+        const delta = 1;
+        const range = [];
+        const rangeWithDots = [];
+
+        for (let i = Math.max(2, current - delta); i <= Math.min(total - 1, current + delta); i++) {
+            range.push(i);
+        }
+
+        if (current - delta > 2) {
+            rangeWithDots.push(1, "...");
+        } else {
+            rangeWithDots.push(1);
+        }
+
+        rangeWithDots.push(...range);
+
+        if (current + delta < total - 1) {
+            rangeWithDots.push("...", total);
+        } else if (total > 1) {
+            rangeWithDots.push(total);
+        }
+
+        return rangeWithDots;
+    };
 
     // Close modal with animation
     const handleClose = (type = 'add') => {
@@ -193,68 +258,140 @@ const AdminEntite = () => {
 
                         {/* Table */}
                         {activeTab === 'attribuees' ? (
-                            <table className="entite-table">
-                                <thead>
-                                <tr>
-                                    <th>Entité</th>
-                                    <th>Responsable</th>
-                                    <th>Responsable sûreté</th>
-                                    <th style={{ textAlign: 'right' }}>Détails</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {paginated.map(e => (
-                                    <tr key={e.id}>
-                                        <td>{e.name}</td>
-                                        <td>{e.responsable}</td>
-                                        <td>{e.responsableSurete}</td>
-                                        <td>
-                                            <div className="action-btns">
-                                                <button className="action-btn"><i className='bx bx-show'></i></button>
-                                            </div>
-                                        </td>
+                            <>
+                                <table className="entite-table">
+                                    <thead>
+                                    <tr>
+                                        <th>Entité</th>
+                                        <th>Responsable</th>
                                     </tr>
-                                ))}
-                                </tbody>
-                            </table>
-                        ) : (
-                            <table className="entite-table">
-                                <thead>
-                                <tr>
-                                    <th>Entité</th>
-                                    <th style={{textAlign: 'right'}}>Détails</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {paginated.length > 0 ? (
-                                    paginated.map((entite) => (
-                                        <tr key={entite.id}>
-                                            <td>{entite.name}</td>
+                                    </thead>
+                                    <tbody>
+                                    {paginatedAssignedUsers.length > 0 ? (
+                                        paginatedAssignedUsers.map(user => (
+                                            <tr key={user.id}>
+                                                <td>{user.entite.name}</td>
+                                                <td>{user.username}</td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={2} style={{ textAlign: 'center', padding: '30px', color: '#888', fontStyle: 'italic' }}>
+                                                Aucune entité trouvée
+                                            </td>
+                                        </tr>
+                                    )}
+                                    </tbody>
+                                </table>
+                                <div
+                                    className="pagination-controls"
+                                >
+                                    <CustomSelect
+                                        options={[
+                                            { value: 1, label: "1" },
+                                            { value: 2, label: "2" },
+                                            { value: 3, label: "3" },
+                                            { value: 4, label: "4" },
+                                        ]}
+                                        value={perPageAttribuees}
+                                        onChange={(val) => {
+                                            setPerPageAttribuees(val);
+                                            setCurrentPageAssigned(1); // reset page
+                                        }}
+                                    />
+                                {/* Pagination for attribuees */}
+                                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                        <button
+                                        onClick={() => setCurrentPageAssigned(prev => prev - 1)}
+                                        disabled={currentPageAssigned === 1}
+                                        style={{
+                                            backgroundColor: currentPageAssigned === 1 ? '#fff' : '#674459',
+                                            color: currentPageAssigned === 1 ? '#674459' : '#f4eee4',
+                                            border: "2px solid rgba(103, 68, 89, 0.5)",
+                                            borderRadius: '50%',
+                                            cursor: currentPageAssigned === 1 ? 'not-allowed' : 'pointer',
+                                            width: "32px",
+                                            height: "32px",
+                                        }}
+                                    >
+                                        ‹
+                                    </button>
 
-                                            {activeTab === 'attribuees' ? (
-                                                <>
-                                                    <td>{entite.responsable}</td>
-                                                    <td>{entite.responsableSurete}</td>
-                                                    <td>
-                                                        <div className="action-btns">
-                                                            <button className="action-btn">
-                                                                <i className='bx bx-show'></i>
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </>
-                                            ) : (
+                                    {getPaginationRange(currentPageAssigned, totalPagesAttribuees).map((p, i) =>
+                                        p === '...' ? (
+                                            <span key={i}>...</span>
+                                        ) : (
+                                            <button
+                                                key={i}
+                                                onClick={() => setCurrentPageAssigned(p)}
+                                                style={{
+                                                    margin: '0 3px',
+                                                    padding: '6px 10px',
+                                                    backgroundColor: p === currentPageAssigned ? '#674459' : 'transparent',
+                                                    color: p === currentPageAssigned ? '#fff' : '#674459',
+                                                    border: p === currentPageAssigned
+                                                        ? '1px solid #674459'
+                                                        : '1px solid transparent',
+                                                    borderRadius: p === currentPageAssigned ? '50%' : '6px',
+                                                    cursor: 'pointer',
+                                                    minWidth: '28px',
+                                                    height: '28px',
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    fontSize: "12px",
+                                                }}
+                                            >
+                                                {p}
+                                            </button>
+                                        )
+                                    )}
+
+                                    <button
+                                        onClick={() => setCurrentPageAssigned(prev => prev + 1)}
+                                        disabled={currentPageAssigned === totalPagesAttribuees}
+                                        style={{
+                                            backgroundColor: currentPageAssigned === totalPagesAttribuees ? '#fff' : '#674459',
+                                            color: currentPageAssigned === totalPagesAttribuees ? '#674459' : '#f4eee4', // ✅ FIXED
+                                            border: "2px solid rgba(103, 68, 89, 0.5)",
+                                            borderRadius: '50%',
+                                            cursor: currentPageAssigned === totalPagesAttribuees ? 'not-allowed' : 'pointer',
+                                            width: "32px",
+                                            height: "32px",
+                                        }}
+                                    >
+                                        ›
+                                    </button>
+                                </div>
+                                    <div>
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <table className="entite-table">
+                                    <thead>
+                                    <tr>
+                                        <th>Entité</th>
+                                        <th style={{ textAlign: 'right' }}>Détails</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {paginatedEntites.length > 0 ? (
+                                        paginatedEntites.map((entite) => (
+                                            <tr key={entite.id}>
+                                                <td>{entite.name}</td>
                                                 <td>
                                                     <div className="action-btns">
                                                         <button
                                                             className="action-btn"
                                                             onClick={() => {
                                                                 setEditingEntite(entite);
-                                                                setEditEntiteName(entite.name); // prefill input
+                                                                setEditEntiteName(entite.name);
                                                                 setShowEditModal(true);
                                                             }}
                                                         >
-                                                            <i className="bx bx-edit-alt"/>
+                                                            <i className="bx bx-edit-alt" />
                                                         </button>
 
                                                         <button
@@ -264,31 +401,105 @@ const AdminEntite = () => {
                                                                 setShowDeleteModal(true);
                                                             }}
                                                         >
-                                                            <i className='bx bx-x'></i>
+                                                            <i className="bx bx-x" />
                                                         </button>
                                                     </div>
                                                 </td>
-                                            )}
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={2} style={{ textAlign: 'center', padding: '30px', color: '#888', fontStyle: 'italic' }}>
+                                                Aucune entité trouvée
+                                            </td>
                                         </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td
-                                            colSpan={activeTab === 'attribuees' ? 4 : 2}
-                                            style={{
-                                                textAlign: 'center',
-                                                padding: '30px',
-                                                color: '#888',
-                                                fontStyle: 'italic'
-                                            }}
-                                        >
-                                            Aucune entité trouvée
-                                        </td>
-                                    </tr>
-                                )}
-                                </tbody>
-                            </table>
-                            )}
+                                    )}
+                                    </tbody>
+                                </table>
+                                <div
+                                    className="pagination-controls"
+                                >
+                                    <CustomSelect
+                                        options={[
+                                            { value: 1, label: "1" },
+                                            { value: 2, label: "2" },
+                                            { value: 3, label: "3" },
+                                            { value: 4, label: "4" },
+                                        ]}
+                                        value={perPageGestion}
+                                        onChange={(val) => {
+                                            setPerPageGestion(val);
+                                            setCurrentPageGestion(1); // reset page
+                                        }}
+                                    />
+                                {/* Pagination for gestion */}
+                                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                        <button
+                                        onClick={() => setCurrentPageGestion(prev => prev - 1)}
+                                        disabled={currentPageGestion === 1}
+                                        style={{
+                                            backgroundColor: currentPageGestion === 1 ? '#fff' : '#674459',
+                                            color: currentPageGestion === 1 ? '#674459' : '#f4eee4',
+                                            border: "2px solid rgba(103, 68, 89, 0.5)",
+                                            borderRadius: '50%',
+                                            cursor: currentPageGestion === 1 ? 'not-allowed' : 'pointer',
+                                            width: "32px",
+                                            height: "32px",
+                                        }}
+                                    >
+                                        ‹
+                                    </button>
+
+                                    {getPaginationRange(currentPageGestion, totalPagesGestion).map((p, i) =>
+                                        p === '...' ? (
+                                            <span key={i}>...</span>
+                                        ) : (
+                                            <button
+                                                key={i}
+                                                onClick={() => setCurrentPageGestion(p)}
+                                                style={{
+                                                    margin: '0 3px',
+                                                    padding: '6px 10px',
+                                                    backgroundColor: p === currentPageGestion ? '#674459' : 'transparent',
+                                                    color: p === currentPageGestion ? '#fff' : '#674459',
+                                                    border: p === currentPageGestion
+                                                        ? '1px solid #674459'
+                                                        : '1px solid transparent',
+                                                    borderRadius: p === currentPageGestion ? '50%' : '6px',
+                                                    cursor: 'pointer',
+                                                    minWidth: '28px',
+                                                    height: '28px',
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    fontSize: "12px",
+                                                }}
+                                            >
+                                                {p}
+                                            </button>
+                                        )
+                                    )}
+
+                                    <button
+                                        onClick={() => setCurrentPageGestion(prev => prev + 1)}
+                                        disabled={currentPageGestion === totalPagesGestion}
+                                        style={{
+                                            backgroundColor: currentPageGestion === totalPagesGestion ? '#fff' : '#674459',
+                                            color: currentPageGestion === totalPagesGestion ? '#674459' : '#f4eee4', // ✅ FIXED
+                                            border: "2px solid rgba(103, 68, 89, 0.5)",
+                                            borderRadius: '50%',
+                                            cursor: currentPageGestion === totalPagesGestion ? 'not-allowed' : 'pointer',
+                                            width: "32px",
+                                            height: "32px",
+                                        }}
+                                    >
+                                        ›
+                                    </button>
+                                </div>
+                                    <div></div>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

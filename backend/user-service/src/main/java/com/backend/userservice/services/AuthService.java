@@ -18,15 +18,17 @@ public class AuthService {
     private static final Logger log = LoggerFactory.getLogger(AuthService.class);
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final EntiteRepository entiteRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
     public AuthService(UserRepository userRepository,
-                       RoleRepository roleRepository,
+                       RoleRepository roleRepository, EntiteRepository entiteRepository,
                        PasswordEncoder passwordEncoder,
                        JwtService jwtService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.entiteRepository = entiteRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
     }
@@ -45,15 +47,25 @@ public class AuthService {
                         .orElseThrow(() -> new RuntimeException("Role not found: " + r)))
                 .collect(Collectors.toSet());
 
+        // Fetch the Entite entity if ID is provided
+        Entite entite = null;
+        if (request.getEntiteId() != null) {
+            entite = entiteRepository.findById(request.getEntiteId())
+                    .orElseThrow(() -> new RuntimeException("Entite not found: " + request.getEntiteId()));
+        }
+
+// Build the Users object
         Users user = Users.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
-                .username(fullName)
+                .username(request.getFullName()) // full name as username
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .roles(roles)
+                .roles(roles) // Set<Role>
+                .entite(entite) // ✅ pass the actual entity, not ID
                 .build();
 
+// Save user
         userRepository.save(user);
 
         return SignUpResponse.builder()

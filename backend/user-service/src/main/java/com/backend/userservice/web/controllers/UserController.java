@@ -1,6 +1,8 @@
 package com.backend.userservice.web.controllers;
 
+import com.backend.userservice.dao.dtos.SignUpRequest;
 import com.backend.userservice.dao.entities.Users;
+import com.backend.userservice.dao.repositories.UserRepository;
 import com.backend.userservice.services.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,5 +27,27 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<Users> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
+    }
+
+    @GetMapping("/with-entite")
+    public ResponseEntity<List<Users>> getUsersWithEntite() {
+        List<Users> users = userService.getUsersWithEntite();
+        return ResponseEntity.ok(users);
+    }
+
+    // ✅ UPDATE USER
+    @PutMapping("/{id}")
+    public ResponseEntity<Users> updateUser(
+            @PathVariable Long id,
+            @RequestBody SignUpRequest request
+    ) {
+        return ResponseEntity.ok(userService.updateUser(id, request));
+    }
+
+    // ✅ DELETE USER
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.ok("User deleted successfully");
     }
 }
