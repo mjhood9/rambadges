@@ -5,16 +5,60 @@ import 'react-datepicker/dist/react-datepicker.css';
 import CustomDatePicker from "../components/layout/CustomDatePicker";
 import {jwtDecode} from "jwt-decode";
 import SignaturePad from "../components/layout/SignaturePad";
-
+import { useNavigate } from "react-router-dom";
 
 const DemandeurDemande = () => {
     const [showModal, setShowModal] = useState(true); // modal shows on mount
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [showLoadingModal, setShowLoadingModal] = useState(false);
+    const [showErrorModal, setShowErrorModal] = useState(false);
+    const [showValidationModal, setShowValidationModal] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
     const [closing, setClosing] = useState(false);
     const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+    const [entites, setEntites] = useState([]);
     const [isImportantAccepted, setIsImportantAccepted] = useState(false);
+    const [currentUser, setCurrentUser] = useState({
+        id: null,
+        firstName: "",
+        lastName: ""
+    });
 
+    const navigate = useNavigate();
+
+    const validateForm = () => {
+        const requiredFields = [
+            "nationalite",
+            "cnie",
+            "lieuNaissance",
+            "filsDe",
+            "ben",
+            "etDe",
+            "bent",
+            "situationFamiliale",
+            "adressePersonnelle",
+            "ville",
+            "serviceEmployeur",
+            "fonction",
+            "direction",
+            "objetAutorisation",
+            "signature"
+        ];
+
+        for (let field of requiredFields) {
+            if (!formData[field] || formData[field].length === 0) {
+                return false;
+            }
+        }
+
+        if (!formData.portes.length || !formData.secteur.length || !formData.zones.length) {
+            return false;
+        }
+
+        return true;
+    };
     // Close modal with animation
     const handleClose = () => {
         setClosing(true);
@@ -24,55 +68,77 @@ const DemandeurDemande = () => {
         }, 400);
     };
 
-    const [currentUser, setCurrentUser] = useState({
-        firstName: "",
-        lastName: ""
-    });
+    const handleSuccessClose = () => {
+        setShowSuccessModal(false);
+        navigate("/demandeur/dashboard");
+    };
 
     useEffect(() => {
         const fetchCurrentUser = async () => {
             try {
                 const token = localStorage.getItem("token");
-
                 if (!token) return;
 
-                // decode JWT
                 const decoded = jwtDecode(token);
-                // depending on your token, username may be in "sub" or "username"
-                const username = decoded.username || decoded.sub;
 
-                // fetch all users
-                const response = await fetch("http://localhost:8080/api/users", {
+                // ✅ directly use userId from JWT
+                const userId = decoded.userId || decoded.sub;
+
+                if (!userId) {
+                    console.error("No userId found in token");
+                    return;
+                }
+
+                const response = await fetch(`http://localhost:8080/api/users/${userId}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         "Content-Type": "application/json"
                     }
                 });
 
-                const users = await response.json();
+                if (!response.ok) throw new Error("Failed to fetch user");
 
-                // find connected user by username
-                const user = users.find(
-                    (u) => u.username === username
-                );
+                const user = await response.json();
 
-                if (user) {
-                    setCurrentUser({
-                        firstName: user.firstName,
-                        lastName: user.lastName
-                    });
-                    setFormData((prev) => ({
-                        ...prev,
-                        firstName: user.firstName,
-                        lastName: user.lastName
-                    }));
-                }
+                setCurrentUser({
+                    id: user.id,
+                    firstName: user.firstName,
+                    lastName: user.lastName
+                });
+
+                setFormData((prev) => ({
+                    ...prev,
+                    userId: user.id,
+                    firstName: user.firstName,
+                    lastName: user.lastName
+                }));
+
             } catch (error) {
                 console.error("Error loading current user:", error);
             }
         };
 
         fetchCurrentUser();
+
+        const fetchEntites = async () => {
+            try {
+                const token = localStorage.getItem("token");
+
+                const res = await fetch("http://localhost:8080/api/entites", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                const data = await res.json();
+                setEntites(data);
+            } catch (error) {
+                console.error("Error fetching entites:", error);
+            }
+        };
+
+        fetchEntites();
     }, []);
 
     const steps = [
@@ -87,6 +153,7 @@ const DemandeurDemande = () => {
     const [currentStep, setCurrentStep] = useState(1);
 
     const [formData, setFormData] = useState({
+        userId: null,
         firstName: "",
         lastName: "",
         nationalite: "",
@@ -166,6 +233,72 @@ const DemandeurDemande = () => {
             ...prev,
             [name]: files[0]
         }));
+    };
+    const fileToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.readAsDataURL(file);
+
+            reader.onload = () => resolve(reader.result); // base64 string
+            reader.onerror = (error) => reject(error);
+        });
+    };
+
+    const handleSubmit = async () => {
+        if (!validateForm()) {
+            setErrorMessage("Veuillez remplir tous les champs obligatoires.");
+            setShowErrorModal(true);
+            return;
+        }
+
+        try {
+            setLoading(true);
+            setShowLoadingModal(true);
+
+            const token = localStorage.getItem("token");
+
+            const cnieFileString = formData.cnieFile
+                ? await fileToBase64(formData.cnieFile)
+                : null;
+
+            const photoFileString = formData.photoFile
+                ? await fileToBase64(formData.photoFile)
+                : null;
+
+            const payload = {
+                ...formData,
+                userId: currentUser.id,
+                cnieFile: cnieFileString,
+                photoFile: photoFileString
+            };
+
+            const res = await fetch("http://localhost:8080/api/demandes", {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                throw new Error("Erreur serveur lors de la soumission");
+            }
+
+            setShowLoadingModal(false);
+            setShowSuccessModal(true);
+
+        } catch (err) {
+            console.error(err);
+
+            setShowLoadingModal(false);
+            setErrorMessage(err.message || "Erreur inconnue");
+            setShowErrorModal(true);
+
+        } finally {
+            setLoading(false);
+        }
     };
 
     const renderStepContent = () => {
@@ -402,12 +535,21 @@ const DemandeurDemande = () => {
                             <div className="form-group">
                                 <label>Direction <span className="text-danger">*</span></label>
                                 <div className="select-wrap">
-                                    <select onClick={() => setIsOpen(!isOpen)}
-                                            onBlur={() => setIsOpen(false)}
-                                            name="direction" required
-                                            value={formData.direction}
-                                            onChange={handleChange}>
+                                    <select
+                                        onClick={() => setIsOpen(!isOpen)}
+                                        onBlur={() => setIsOpen(false)}
+                                        name="direction"
+                                        required
+                                        value={formData.direction}
+                                        onChange={handleChange}
+                                    >
                                         <option value=""></option>
+
+                                        {entites.map((entite) => (
+                                            <option key={entite.id} value={entite.name}>
+                                                {entite.name}
+                                            </option>
+                                        ))}
                                     </select>
                                     <i className={`bx bx-chevron-down select-arrow ${isOpen ? 'open' : ''}`}></i>
                                 </div>
@@ -829,7 +971,7 @@ const DemandeurDemande = () => {
                                 <div className="summary-box">
                                     <p><strong>N° Passport:</strong> {formData.passportNumber || "—"}</p>
                                     <p><strong>Date d'expiration:</strong> {formData.dateExpirationPassport?.toLocaleDateString() || "—"}</p>
-                                    <p><strong>Emis Le:</strong> {formData.dateDebutPassport || "—"}</p>
+                                    <p><strong>Emis Le:</strong> {formData.dateDebutPassport?.toLocaleDateString() || "—"}</p>
                                     <p><strong>Emis A:</strong> {formData.passportEmisA|| "—"}</p>
                                     <br/>
                                     <p><strong>Permis de conduire N°:</strong> {formData.permisNumber || "—"}</p>
@@ -1053,7 +1195,7 @@ const DemandeurDemande = () => {
                             {currentStep === steps.length && (
                                 <button
                                     className="btn-enregistrement"
-                                    onClick={() => setShowSuccessModal(true)}
+                                    onClick={handleSubmit}
                                     disabled={!isImportantAccepted}
                                     style={{
                                         opacity: !isImportantAccepted ? 0.5 : 1,
@@ -1102,23 +1244,67 @@ const DemandeurDemande = () => {
                     </div>
                 </div>
             )}
+            {showLoadingModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <div style={{ textAlign: "center", padding: "30px" }}>
+                            <div className="spinner"></div>
+                            <p>Envoi de votre demande...</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {showErrorModal && (
+                <div className="modal-overlay" onClick={() => setShowErrorModal(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <button className="close-btn" onClick={() => setShowErrorModal(false)}>
+                            ×
+                        </button>
+
+                        <h3 style={{ color: "red" }}>Erreur</h3>
+                        <p>{errorMessage}</p>
+
+                        <button
+                            className="submit-btn1"
+                            onClick={() => setShowErrorModal(false)}
+                        >
+                            Fermer
+                        </button>
+                    </div>
+                </div>
+            )}
+            {showValidationModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h3>Champs manquants</h3>
+                        <p>Veuillez remplir tous les champs obligatoires.</p>
+
+                        <button onClick={() => setShowValidationModal(false)}>
+                            OK
+                        </button>
+                    </div>
+                </div>
+            )}
             {showSuccessModal && (
-                <div className="modal-overlay" onClick={handleClose}>
+                <div className="modal-overlay" onClick={handleSuccessClose}>
                     <div
                         className={`modal-content ${closing ? "closing" : ""}`}
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <button className="close-btn" onClick={handleClose}>
+                        <button className="close-btn" onClick={handleSuccessClose}>
                             ×
                         </button>
-                        <form className="modal-form" style={{display:"flex", justifyContent:"center"}}>
-                            <p className="lbl-success">Votre demande a été enregistrée et soumise pour validation.</p>
+
+                        <form className="modal-form" style={{ display: "flex", justifyContent: "center" }}>
+                            <p className="lbl-success">
+                                Votre demande a été enregistrée et soumise pour validation.
+                            </p>
 
                             <div className="modal-actions1">
                                 <button
                                     type="button"
                                     className="submit-btn1"
-                                    onClick={handleClose}
+                                    onClick={handleSuccessClose}
                                 >
                                     <i className="fa-solid fa-arrow-right" /> Fermer
                                 </button>

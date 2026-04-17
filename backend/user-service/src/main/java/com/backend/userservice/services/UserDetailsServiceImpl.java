@@ -2,7 +2,6 @@ package com.backend.userservice.services;
 
 import com.backend.userservice.dao.entities.Users;
 import com.backend.userservice.dao.repositories.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

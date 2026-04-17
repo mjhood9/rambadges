@@ -14,6 +14,8 @@ import DirecteurDemande from "../pages/DirecteurDemande";
 import DirecteurLaissezPasser from "../pages/DirecteurLaissezPasser";
 import CorrespondantDemande from "../pages/CorrespondantDemande";
 import CorrespondantLaissezPasser from "../pages/CorrespondantLaissezPasser";
+import DemandeurDetails from "../pages/DemandeurDetails";
+import DirecteurValidation from "../pages/DirecteurValidation";
 
 const ProtectedRoute = ({ children, requiredRole }) => {
     const { user } = useAuthContext();
@@ -80,12 +82,22 @@ const AppRoutes = () => {
                     <DemandeurDashboard />
                 </DemandeurLayout>
             } />
+            <Route path="/demande/:id" element={
+                <DemandeurLayout>
+                    <DemandeurDetails />
+                </DemandeurLayout>
+            } />
 
             {/* Admin Entité — all pages show ADMIN_ENTITE in navbar */}
             <Route path="/directeur/demandes" element={
                 <AdminEntiteLayout>
                     <DirecteurDemande />
                 </AdminEntiteLayout>
+            } />
+            <Route path="/directeur/demande/:id" element={
+                <DemandeurLayout>
+                    <DirecteurValidation />
+                </DemandeurLayout>
             } />
             <Route path="/directeur/laissez-passer" element={
                 <AdminEntiteLayout>

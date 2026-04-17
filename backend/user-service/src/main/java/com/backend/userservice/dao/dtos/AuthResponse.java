@@ -4,18 +4,21 @@ package com.backend.userservice.dao.dtos;
 import java.util.Set;
 
 public class AuthResponse {
+    private Long userId;
     private String token;
     private String username;
     private String fullName;
     private String email;
     private Set<String> roles;
 
+    public Long getUserId() { return userId; }
     public String getToken() { return token; }
     public String getUsername() { return username; }
     public String getFullName() { return fullName; }
     public String getEmail() { return email; }
     public Set<String> getRoles() { return roles; }
 
+    public void setUserId(Long userId) { this.userId = userId; }
     public void setToken(String token) { this.token = token; }
     public void setUsername(String username) { this.username = username; }
     public void setFullName(String fullName) { this.fullName = fullName; }
@@ -25,12 +28,17 @@ public class AuthResponse {
     public static Builder builder() { return new Builder(); }
 
     public static class Builder {
+        private Long userId;
         private String token;
         private String username;
         private String fullName;
         private String email;
         private Set<String> roles;
 
+        public Builder userId(Long userId) {
+            this.userId = userId;
+            return this;
+        }
         public Builder token(String token) { this.token = token; return this; }
         public Builder username(String username) { this.username = username; return this; }
         public Builder fullName(String fullName) { this.fullName = fullName; return this; }
@@ -39,6 +47,7 @@ public class AuthResponse {
 
         public AuthResponse build() {
             AuthResponse r = new AuthResponse();
+            r.userId = this.userId;
             r.token = this.token;
             r.username = this.username;
             r.fullName = this.fullName;

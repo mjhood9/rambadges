@@ -51,7 +51,7 @@ const AdminDashboard = () => {
             const token = localStorage.getItem('token');
 
             const decoded = jwtDecode(token);
-            const currentUsername = decoded.sub; // 👈 username from token
+            const currentUserId = decoded.sub;
 
             const response = await axios.get(
                 'http://localhost:8080/api/users',
@@ -64,7 +64,7 @@ const AdminDashboard = () => {
 
             // ✅ exclude current user using username
             const filteredUsers = response.data.filter(
-                user => user.username !== currentUsername
+                user => user.id !== Number(currentUserId)
             );
 
             setUsers(filteredUsers);

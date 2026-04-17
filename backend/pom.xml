@@ -49,6 +49,7 @@
         <module>eureka-server</module>
         <module>api-gateway</module>
         <module>user-service</module>
+        <module>demande-service</module>
     </modules>
     <!-- COMMON PLUGINS FOR ALL CHILD MICRO-SERVICES -->
     <build>

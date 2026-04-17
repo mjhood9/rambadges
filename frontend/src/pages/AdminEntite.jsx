@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Helmet } from "react-helmet-async";
 import axios from 'axios';
+import { jwtDecode } from "jwt-decode";
 import "../assets/styles/main.css";
 import CustomSelect from "../components/layout/CustomSelect";
 
@@ -44,15 +45,30 @@ const AdminEntite = () => {
 
     const fetchAssignedUsers = async () => {
         try {
+            const token = localStorage.getItem("token");
+
+            // decode JWT
+            const decoded = jwtDecode(token);
+
+            // adjust this depending on your token payload (id, sub, email, etc.)
+            const currentUserId = Number(decoded.sub);
+
             const response = await axios.get(
-                'http://localhost:8080/api/users/with-entite', // fetch all assigned users
+                "http://localhost:8080/api/users/with-entite",
                 {
-                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                    headers: { Authorization: `Bearer ${token}` }
                 }
             );
-            setAssignedUsers(response.data);
+
+            // filter out current user
+            const filteredUsers = response.data.filter(
+                (user) => Number(user.id) !== currentUserId
+            );
+
+            setAssignedUsers(filteredUsers);
+
         } catch (err) {
-            console.error('Error fetching assigned users:', err);
+            console.error("Error fetching assigned users:", err);
         }
     };
 

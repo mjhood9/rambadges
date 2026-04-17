@@ -71,7 +71,6 @@ public class AuthService {
         return SignUpResponse.builder()
                 .message("User created successfully")
                 .username(user.getUsername())
-                .fullName(user.getFirstName() + " " + user.getLastName())
                 .email(user.getEmail())
                 .build();
     }
@@ -87,6 +86,7 @@ public class AuthService {
         }
 
         return AuthResponse.builder()
+                .userId(user.getId())
                 .token(jwtService.generateToken(user))
                 .username(user.getUsername())
                 .fullName(user.getFirstName() + " " + user.getLastName())
