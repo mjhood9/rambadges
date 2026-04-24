@@ -1,7 +1,6 @@
 package com.backend.demandeservice.dao.dtos;
 
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;

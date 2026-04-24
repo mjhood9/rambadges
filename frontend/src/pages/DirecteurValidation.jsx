@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import "../assets/styles/main.css";
 import { jwtDecode } from "jwt-decode";
+import SignaturePad from "../components/layout/SignaturePad";
 
 const DirecteurValidation = () => {
     const { id } = useParams();
@@ -14,6 +15,7 @@ const DirecteurValidation = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [closing, setClosing] = useState(false);
+    const [laissezPasser, setLaissezPasser] = useState(null);
 
     const [commentaireRefus, setCommentaireRefus] = useState("");
     const [commentaires, setCommentaires] = useState([]);
@@ -22,6 +24,9 @@ const DirecteurValidation = () => {
     const token = localStorage.getItem("token");
     const decoded = token ? jwtDecode(token) : null;
     const userId = decoded ? Number(decoded.sub) : null;
+
+    const [signatureDirecteur, setSignatureDirecteur] = useState(null);
+    const [signatureError, setSignatureError] = useState("");
 
     const handleClose = (type) => {
         setClosing(true);
@@ -79,7 +84,7 @@ const DirecteurValidation = () => {
 
                 const token = localStorage.getItem("token");
 
-                const [resDemande, resComments, resUsers] = await Promise.all([
+                const [resDemande, resComments, resUsers, resLaissezPasser] = await Promise.all([
                     axios.get(`http://localhost:8080/api/demandes/${id}`, {
                         headers: { Authorization: `Bearer ${token}` },
                     }),
@@ -91,11 +96,21 @@ const DirecteurValidation = () => {
                     axios.get(`http://localhost:8080/api/users`, {
                         headers: { Authorization: `Bearer ${token}` },
                     }),
+
+                    axios.get(`http://localhost:8080/api/laissezpasser`, {
+                        params: { demandeId: id },
+                        headers: { Authorization: `Bearer ${token}` }
+                    }),
                 ]);
 
                 setDemande(resDemande.data);
                 setCommentaires(resComments.data);
                 setUsers(resUsers.data);
+
+                // ✅ laissez-passer (may be null)
+                const lpData = resLaissezPasser.data;
+
+                setLaissezPasser(Array.isArray(lpData) ? lpData[0] : lpData || null);
 
             } catch (err) {
                 console.error(err);
@@ -122,6 +137,7 @@ const DirecteurValidation = () => {
                     statusCorrespondant: "EN_ATTENTE",
                     commentaire: "",
                     userId: userId,
+                    signatureDirecteur: signatureDirecteur
                 },
                 {
                     headers: {
@@ -220,11 +236,11 @@ const DirecteurValidation = () => {
             },
             {
                 label: "DÉPÔT ONDA",
-                status: demande.statusONDA
+                date: laissezPasser?.dateDepotOnda
             },
             {
                 label: "DÉLIVRANCE DE LAISSEZ-PASSER",
-                status: demande.statusDelivrance
+                date: laissezPasser?.dateDelivrance
             }
         ]
         : [];
@@ -272,21 +288,29 @@ const DirecteurValidation = () => {
                                     {validationSteps.map((step, index) => (
                                         <div key={index} className="val-step">
 
-                                            {/* STEP LABEL */}
-                                            <span className={`val-label ${step.status === "EN_ATTENTE" ? "active" : ""}`}>
-                    {step.label}
-                </span>
+                                            {/* LABEL */}
+                                            <span
+                                                className={`val-label ${step.status || step.date ? "active" : ""}`}
+                                            >
+                {step.label}
+            </span>
 
                                             {/* STATUS BADGE */}
                                             {step.status && (
                                                 <span className={`status-badge ${getStatusClass(step.status)}`}>
-                        {getStatusLabel(step.status)}
-                    </span>
+                    {getStatusLabel(step.status)}
+                </span>
+                                            )}
+
+                                            {/* DATE DISPLAY */}
+                                            {step.date && (
+                                                <span className="card-value">
+        {new Date(step.date).toLocaleDateString('fr-FR')}
+    </span>
                                             )}
 
                                         </div>
                                     ))}
-
                                 </div>
                             </div>
                         </div>
@@ -299,13 +323,13 @@ const DirecteurValidation = () => {
                                         <p><strong>Nom:</strong> {demande.lastName}</p>
                                         <p><strong>Nationalité:</strong> {demande.nationalite || "—"}</p>
                                         <p><strong>N° CNIE:</strong> {demande.cnie || "—"}</p>
-                                        <p><strong>Date d'expiration :</strong> {demande.dateExpiration || "—"}</p>
+                                        <p><strong>Date d'expiration :</strong> {demande.dateExpiration ? new Date(demande.dateExpiration).toLocaleDateString('fr-FR') : "—"}</p>
                                     </div>
                                     <div>
                                         <p><strong>Organisme Employeur:</strong> {demande.organisme || "—"}</p>
                                         <p><strong>Service Employeur:</strong> {demande.serviceEmployeur || "—"}</p>
                                         <p><strong>Fonction:</strong> {demande.fonction|| "—"}</p>
-                                        <p><strong>Date de Recrutement:</strong> {demande.dateRecrutement || "—"}</p>
+                                        <p><strong>Date de Recrutement:</strong> {demande.dateRecrutement ? new Date(demande.dateRecrutement).toLocaleDateString('fr-FR') : "—"}</p>
                                         <p><strong>Direction:</strong> {demande.direction|| "—"}</p>
                                         <p><strong>Emploies precedents:</strong> {demande.employesPrecedents|| "—"}</p>
                                     </div>
@@ -499,6 +523,23 @@ const DirecteurValidation = () => {
                         <p style={{ textAlign: 'center', fontSize: '14px', marginTop: '25px' }}>
                             <label style={{fontWeight: '400'}}>Si vous confirmez, cet élément ne sera plus accessible.</label>
                         </p>
+                        <div style={{ marginTop: "20px" }}>
+                            <label className="lbl-entite">Signature Directeur</label>
+
+                            <SignaturePad
+                                required
+                                onChange={(sig) => {
+                                    setSignatureDirecteur(sig);
+                                    setSignatureError("");
+                                }}
+                            />
+
+                            {signatureError && (
+                                <span style={{ color: "#e53935", fontSize: "12px" }}>
+                        {signatureError}
+                    </span>
+                            )}
+                        </div>
                         <div className="modal-actions1">
                             <button type="button" className="cancel-btn" onClick={() => handleClose("accept")}>
                                 <i className="fa-solid fa-arrow-left"/> Annuler

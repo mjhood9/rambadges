@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="api-gateway" />
+        <module name="laissez-passer-service" />
         <module name="user-service" />
         <module name="eureka-server" />
         <module name="demande-service" />
@@ -19,6 +20,7 @@
       <module name="api-gateway" options="-parameters" />
       <module name="demande-service" options="-parameters" />
       <module name="eureka-server" options="-parameters" />
+      <module name="laissez-passer-service" options="-parameters" />
       <module name="user-service" options="-parameters" />
     </option>
   </component>

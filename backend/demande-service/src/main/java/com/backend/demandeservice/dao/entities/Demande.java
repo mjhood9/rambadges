@@ -61,6 +61,14 @@ public class Demande {
     @Column(columnDefinition = "TEXT")
     private String signature;
 
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String signatureDirecteur;
+
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String signatureCorrespondant;
+
     // Zones, portes, secteur stored as JSON strings
     private String zones;
 
@@ -249,5 +257,21 @@ public class Demande {
 
     public void setStatusCorrespondant(DemandeStatus statusCorrespondant) {
         this.statusCorrespondant = statusCorrespondant;
+    }
+
+    public String getSignatureDirecteur() {
+        return signatureDirecteur;
+    }
+
+    public void setSignatureDirecteur(String signatureDirecteur) {
+        this.signatureDirecteur = signatureDirecteur;
+    }
+
+    public String getSignatureCorrespondant() {
+        return signatureCorrespondant;
+    }
+
+    public void setSignatureCorrespondant(String signatureCorrespondant) {
+        this.signatureCorrespondant = signatureCorrespondant;
     }
 }

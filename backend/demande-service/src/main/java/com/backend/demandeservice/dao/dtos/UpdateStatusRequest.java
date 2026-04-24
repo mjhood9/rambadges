@@ -5,7 +5,9 @@ import com.backend.demandeservice.dao.enums.DemandeStatus;
 public class UpdateStatusRequest {
     private DemandeStatus status;
     private DemandeStatus statusDirecteur;
+    private String signatureDirecteur;
     private DemandeStatus statusCorrespondant;
+    private String signatureCorrespondant;
     private Long userId;
 
     public DemandeStatus getStatus() {
@@ -39,5 +41,21 @@ public class UpdateStatusRequest {
 
     public void setStatusCorrespondant(DemandeStatus statusCorrespondant) {
         this.statusCorrespondant = statusCorrespondant;
+    }
+
+    public String getSignatureDirecteur() {
+        return signatureDirecteur;
+    }
+
+    public void setSignatureDirecteur(String signatureDirecteur) {
+        this.signatureDirecteur = signatureDirecteur;
+    }
+
+    public String getSignatureCorrespondant() {
+        return signatureCorrespondant;
+    }
+
+    public void setSignatureCorrespondant(String signatureCorrespondant) {
+        this.signatureCorrespondant = signatureCorrespondant;
     }
 }

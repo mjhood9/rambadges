@@ -46,6 +46,21 @@
     margin-top:40px;
 }
 
+.container1 {
+    width: 100%;
+    max-width: 1200px;
+    margin-bottom:80px;
+    margin-top:40px;
+}
+
+@media (min-width: 1200px) {
+    .container1 {
+        max-width: 1600px !important;
+        margin: 0 auto !important;
+        padding: 0 20px !important;
+    }
+}
+
 .entite-top-bar {
     display: flex;
     align-items: center;
@@ -161,11 +176,19 @@
     cursor: pointer;
 }
 
-.add-btn i{
+.add-btn i {
+    display: inline-flex;       /* makes centering possible */
+    align-items: center;        /* vertical center */
+    justify-content: center;    /* horizontal center */
+
+    width: 15px;                /* equal width & height = perfect circle */
+    height: 15px;
+
     border: 1px solid white;
-    border-radius: 50px;
+    border-radius: 50%;
+
     font-size: 12px;
-    margin-right:10px;
+    margin-right: 10px;
 }
 
 .entite-table {
@@ -245,6 +268,22 @@
     justify-content: center;
     cursor: pointer;
     font-size: 16px;
+    color: #674459;
+    transition: all 0.2s;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.date-btn{
+    width: 36px;
+    height: 36px;
+    border-radius: 20px;
+    border: 1.5px solid #ddd;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 20px;
     color: #674459;
     transition: all 0.2s;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
@@ -950,7 +989,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .select-arrow {
     position: absolute;
     right: 16px;
-    top: 50%;
+    top: 47%;
     transform: translateY(-50%) rotate(0deg);
     transition: transform 0.3s ease;
 }
@@ -1508,3 +1547,4 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     margin-top: 4px;
     min-height: 14px;
 }
+

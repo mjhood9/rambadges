@@ -4,6 +4,7 @@
     <file url="file://$PROJECT_DIR$/backend/api-gateway/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/demande-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/eureka-server/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/laissez-passer-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/user-service/src/main/java" charset="UTF-8" />

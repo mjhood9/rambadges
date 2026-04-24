@@ -50,6 +50,7 @@
         <module>api-gateway</module>
         <module>user-service</module>
         <module>demande-service</module>
+        <module>laissez-passer-service</module>
     </modules>
     <!-- COMMON PLUGINS FOR ALL CHILD MICRO-SERVICES -->
     <build>

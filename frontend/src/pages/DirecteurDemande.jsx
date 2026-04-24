@@ -9,9 +9,11 @@ import { useNavigate } from "react-router-dom";
 const DirecteurDemande = () => {
     const [demandes, setDemandes] = useState([]);
     const [validations, setValidations] = useState([]);
+    const [laissezPasserMap, setLaissezPasserMap] = useState({});
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [isStatusOpen, setIsStatusOpen] = useState(false);
+    const [isDirecteurOpen, setIsDirecteurOpen] = useState(false);
+    const [isCorrespondantOpen, setIsCorrespondantOpen] = useState(false);
 
     const [validationDateFilter, setValidationDateFilter] = useState("");
     const [demandeDateFilter, setDemandeDateFilter] = useState("");
@@ -24,8 +26,8 @@ const DirecteurDemande = () => {
     const [currentValidations, setCurrentValidations] = useState(1);
     const [currentDemandes, setCurrentDemandes] = useState(1);
 
-    const [perPageValidations, setPerPageValidations] = useState(1);
-    const [perPageDemandes, setPerPageDemandes] = useState(1);
+    const [perPageValidations, setPerPageValidations] = useState(5);
+    const [perPageDemandes, setPerPageDemandes] = useState(5);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -76,19 +78,37 @@ const DirecteurDemande = () => {
 
                 const allDemandes = demandesRes.data;
 
-                // 5. Filter by entite (ALL demandes)
+                // 5. Filter by entite
                 const sameEntiteDemandes = allDemandes.filter((d) =>
                     sameEntiteUserIds.includes(Number(d.userId))
                 );
 
-                // 6. Split validations (EN_ATTENTE only)
+                // 6. Split validations
                 const validationsData = sameEntiteDemandes.filter(
                     (d) => d.statusDirecteur === "EN_ATTENTE"
                 );
 
-                // ✅ Set states
-                setDemandes(sameEntiteDemandes); // all demandes
-                setValidations(validationsData); // only EN_ATTENTE
+                setDemandes(sameEntiteDemandes);
+                setValidations(validationsData);
+
+                // 7. ✅ FETCH LAISSEZ-PASSER FOR EACH DEMANDE
+                const lpRequests = sameEntiteDemandes.map((d) =>
+                    axios.get(`http://localhost:8080/api/laissezpasser`, {
+                        params: { demandeId: d.id },
+                        headers: { Authorization: `Bearer ${token}` }
+                    })
+                        .then(res => ({ id: d.id, data: res.data }))
+                        .catch(() => ({ id: d.id, data: null }))
+                );
+
+                const lpResults = await Promise.all(lpRequests);
+
+                const lpMap = {};
+                lpResults.forEach((r) => {
+                    lpMap[r.id] = Array.isArray(r.data) ? r.data[0] : r.data;
+                });
+
+                setLaissezPasserMap(lpMap);
 
             } catch (err) {
                 console.error(err);
@@ -233,7 +253,7 @@ const DirecteurDemande = () => {
                                                     padding: "12px 12px",
                                                     borderRadius: "10px",
                                                     border: validationDateFilter ? "1.8px solid #674459" : "1.5px solid #ddd",
-                                                    backgroundColor: "#f9fafb",
+                                                    backgroundColor: "#f6f6f6",
                                                     fontSize: "14px",
                                                     color: "#838383",
                                                     outline: "none",
@@ -301,7 +321,7 @@ const DirecteurDemande = () => {
                                                     padding: "12px 12px",
                                                     borderRadius: "10px",
                                                     border: demandeDateFilter ? "1.8px solid #674459" : "1.5px solid #ddd",
-                                                    backgroundColor: "#f9fafb",
+                                                    backgroundColor: "#f6f6f6",
                                                     fontSize: "14px",
                                                     color: "#838383",
                                                     outline: "none",
@@ -343,8 +363,8 @@ const DirecteurDemande = () => {
                                         {/* STATUS SELECT */}
                                         <div className="select-wrap">
                                             <select
-                                                onClick={() => setIsStatusOpen(!isStatusOpen)}
-                                                onBlur={() => setIsStatusOpen(false)}
+                                                onClick={() => setIsDirecteurOpen(!isDirecteurOpen)}
+                                                onBlur={() => setIsDirecteurOpen(false)}
                                                 value={demandeStatusDirecteurFilter}
                                                 onChange={(e) => setDemandeStatusDirecteurFilter(e.target.value)}
                                             >
@@ -354,12 +374,11 @@ const DirecteurDemande = () => {
                                                 <option value="REJETEE">Refusé</option>
                                             </select>
 
-                                            <i className={`bx bx-chevron-down select-arrow ${isStatusOpen ? "open" : ""}`}></i>
-                                        </div>
+                                            <i className={`bx bx-chevron-down select-arrow ${isDirecteurOpen ? "open" : ""}`}></i>                                        </div>
                                         <div className="select-wrap">
                                             <select
-                                                onClick={() => setIsStatusOpen(!isStatusOpen)}
-                                                onBlur={() => setIsStatusOpen(false)}
+                                                onClick={() => setIsCorrespondantOpen(!isCorrespondantOpen)}
+                                                onBlur={() => setIsCorrespondantOpen(false)}
                                                 value={demandeStatusCorrespondantFilter}
                                                 onChange={(e) => setDemandeStatusCorrespondantFilter(e.target.value)}
                                             >
@@ -369,8 +388,7 @@ const DirecteurDemande = () => {
                                                 <option value="REJETEE">Refusé</option>
                                             </select>
 
-                                            <i className={`bx bx-chevron-down select-arrow ${isStatusOpen ? "open" : ""}`}></i>
-                                        </div>
+                                            <i className={`bx bx-chevron-down select-arrow ${isCorrespondantOpen ? "open" : ""}`}></i>                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -396,7 +414,7 @@ const DirecteurDemande = () => {
                                         paginatedValidations.map(v => (
                                             <tr key={v.id}>
                                                 <td>{v.id}</td>
-                                                <td>{v.createdAt?.split("T")[0]}</td>
+                                                <td>{new Date(v.createdAt).toLocaleDateString('fr-FR')}</td>
                                                 <td>{v.firstName} {v.lastName}</td>
                                                 <td>{v.portes?.length
                                                     ? v.portes.join(", ")
@@ -429,10 +447,10 @@ const DirecteurDemande = () => {
                                 >
                                     <CustomSelect
                                         options={[
-                                            { value: 1, label: "1" },
-                                            { value: 2, label: "2" },
-                                            { value: 3, label: "3" },
-                                            { value: 4, label: "4" },
+                                            { value: 5, label: "5" },
+                                            { value: 10, label: "10" },
+                                            { value: 15, label: "15" },
+                                            { value: 20, label: "20" },
                                         ]}
                                         value={perPageValidations}
                                         onChange={(val) => {
@@ -444,13 +462,13 @@ const DirecteurDemande = () => {
                                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                                         <button
                                             onClick={() => setCurrentValidations(prev => prev - 1)}
-                                            disabled={currentValidations === 1}
+                                            disabled={currentValidations === 1 || totalPagesValidations === 0}
                                             style={{
-                                                backgroundColor: currentValidations === 1 ? '#fff' : '#674459',
-                                                color: currentValidations === 1 ? '#674459' : '#f4eee4',
+                                                backgroundColor: (currentValidations === 1 || totalPagesValidations === 0) ? '#fff' : '#674459',
+                                                color: (currentValidations === 1 || totalPagesValidations === 0) ? '#674459' : '#f4eee4',
                                                 border: "2px solid rgba(103, 68, 89, 0.5)",
                                                 borderRadius: '50%',
-                                                cursor: currentValidations === 1 ? 'not-allowed' : 'pointer',
+                                                cursor: (currentValidations === 1 || totalPagesValidations === 0) ? 'not-allowed' : 'pointer',
                                                 width: "32px",
                                                 height: "32px",
                                             }}
@@ -490,13 +508,13 @@ const DirecteurDemande = () => {
 
                                         <button
                                             onClick={() => setCurrentValidations(prev => prev + 1)}
-                                            disabled={currentValidations === totalPagesValidations}
+                                            disabled={currentValidations === totalPagesValidations || totalPagesValidations === 0}
                                             style={{
-                                                backgroundColor: currentValidations === totalPagesValidations ? '#fff' : '#674459',
-                                                color: currentValidations === totalPagesValidations ? '#674459' : '#f4eee4', // ✅ FIXED
+                                                backgroundColor: (currentValidations === totalPagesValidations || totalPagesValidations === 0) ? '#fff' : '#674459',
+                                                color: (currentValidations === totalPagesValidations || totalPagesValidations === 0) ? '#674459' : '#f4eee4',
                                                 border: "2px solid rgba(103, 68, 89, 0.5)",
                                                 borderRadius: '50%',
-                                                cursor: currentValidations === totalPagesValidations ? 'not-allowed' : 'pointer',
+                                                cursor: (currentValidations === totalPagesValidations || totalPagesValidations === 0) ? 'not-allowed' : 'pointer',
                                                 width: "32px",
                                                 height: "32px",
                                             }}
@@ -525,15 +543,18 @@ const DirecteurDemande = () => {
                                     </thead>
                                     <tbody>
                                     {paginatedDemandes.length > 0 ? (
-                                        paginatedDemandes.map((d) => (
+                                        paginatedDemandes.map((d) => {
+                                            const lp = laissezPasserMap[d.id]; // 👈 important
+
+                                            return (
                                             <tr key={d.id}>
                                                 <td>{d.id}</td>
-                                                <td>{d.createdAt?.split("T")[0]}</td>
+                                                <td>{new Date(d.createdAt).toLocaleDateString('fr-FR')}</td>
                                                 <td>{d.firstName} {d.lastName}</td>
                                                 <td>{getStatusBadge(d.statusDirecteur)}</td>
                                                 <td>{getStatusBadge(d.statusCorrespondant)}</td>
-                                                <td></td>
-                                                <td></td>
+                                                <td>{lp?.dateDepotOnda ? new Date(lp?.dateDepotOnda).toLocaleDateString('fr-FR') : "—"}</td>
+                                                <td>{lp?.dateDelivrance ? new Date(lp?.dateDelivrance).toLocaleDateString('fr-FR') : "—"}</td>
                                                 <td style={{ textAlign: "right", display: "flex", justifyContent: "flex-end" }}> <div
                                                     className="detail-btn"
                                                     onClick={() => navigate(`/directeur/demande/${d.id}`)}
@@ -542,11 +563,12 @@ const DirecteurDemande = () => {
                                                     <i className="fa-regular fa-eye"></i>
                                                 </div> </td>
                                             </tr>
-                                        ))
+                                            );
+                                        })
                                     ) : (
                                         <tr>
-                                            <td colSpan={8} style={{ textAlign: 'center', padding: '30px', color: '#888', fontStyle: 'italic' }}>
-                                                Aucune entité trouvée
+                                            <td colSpan={9} style={{ textAlign: 'center', padding: '30px', color: '#888', fontStyle: 'italic' }}>
+                                                Aucune demande trouvée
                                             </td>
                                         </tr>
                                     )}
@@ -557,10 +579,10 @@ const DirecteurDemande = () => {
                                 >
                                     <CustomSelect
                                         options={[
-                                            { value: 1, label: "1" },
-                                            { value: 2, label: "2" },
-                                            { value: 3, label: "3" },
-                                            { value: 4, label: "4" },
+                                            { value: 5, label: "5" },
+                                            { value: 10, label: "10" },
+                                            { value: 15, label: "15" },
+                                            { value: 20, label: "20" },
                                         ]}
                                         value={perPageDemandes}
                                         onChange={(val) => {
@@ -572,13 +594,13 @@ const DirecteurDemande = () => {
                                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                                         <button
                                             onClick={() => setCurrentDemandes(prev => prev - 1)}
-                                            disabled={currentDemandes === 1}
+                                            disabled={currentDemandes === 1 || totalPagesDemandes === 0}
                                             style={{
-                                                backgroundColor: currentDemandes === 1 ? '#fff' : '#674459',
-                                                color: currentDemandes === 1 ? '#674459' : '#f4eee4',
+                                                backgroundColor: (currentDemandes === 1 || totalPagesDemandes === 0) ? '#fff' : '#674459',
+                                                color: (currentDemandes === 1 || totalPagesDemandes === 0) ? '#674459' : '#f4eee4',
                                                 border: "2px solid rgba(103, 68, 89, 0.5)",
                                                 borderRadius: '50%',
-                                                cursor: currentDemandes === 1 ? 'not-allowed' : 'pointer',
+                                                cursor: (currentDemandes === 1 || totalPagesDemandes === 0) ? 'not-allowed' : 'pointer',
                                                 width: "32px",
                                                 height: "32px",
                                             }}
@@ -618,13 +640,13 @@ const DirecteurDemande = () => {
 
                                         <button
                                             onClick={() => setCurrentDemandes(prev => prev + 1)}
-                                            disabled={currentDemandes === totalPagesDemandes}
+                                            disabled={currentDemandes === totalPagesDemandes || totalPagesDemandes === 0}
                                             style={{
-                                                backgroundColor: currentDemandes === totalPagesDemandes ? '#fff' : '#674459',
-                                                color: currentDemandes === totalPagesDemandes ? '#674459' : '#f4eee4', // ✅ FIXED
+                                                backgroundColor: (currentDemandes === totalPagesDemandes || totalPagesDemandes === 0) ? '#fff' : '#674459',
+                                                color: (currentDemandes === totalPagesDemandes || totalPagesDemandes === 0) ? '#674459' : '#f4eee4',
                                                 border: "2px solid rgba(103, 68, 89, 0.5)",
                                                 borderRadius: '50%',
-                                                cursor: currentDemandes === totalPagesDemandes ? 'not-allowed' : 'pointer',
+                                                cursor: (currentDemandes === totalPagesDemandes || totalPagesDemandes === 0) ? 'not-allowed' : 'pointer',
                                                 width: "32px",
                                                 height: "32px",
                                             }}

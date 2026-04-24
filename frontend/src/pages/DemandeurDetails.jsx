@@ -9,6 +9,7 @@ const DemandeurDetails = () => {
 
     const [demande, setDemande] = useState(null);
     const [commentaires, setCommentaires] = useState([]);
+    const [laissezPasser, setLaissezPasser] = useState(null);
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -55,7 +56,7 @@ const DemandeurDetails = () => {
 
                 const token = localStorage.getItem("token");
 
-                const [resDemande, resComments, resUsers] = await Promise.all([
+                const [resDemande, resComments, resUsers, resLaissezPasser] = await Promise.all([
                     axios.get(`http://localhost:8080/api/demandes/${id}`, {
                         headers: { Authorization: `Bearer ${token}` },
                     }),
@@ -66,12 +67,19 @@ const DemandeurDetails = () => {
 
                     axios.get(`http://localhost:8080/api/users`, {
                         headers: { Authorization: `Bearer ${token}` },
-                    })
+                    }),
+                    axios.get(`http://localhost:8080/api/laissezpasser`, {
+                        params: { demandeId: id },
+                        headers: { Authorization: `Bearer ${token}` }
+                    }),
                 ]);
 
                 setDemande(resDemande.data);
                 setCommentaires(resComments.data);
                 setUsers(resUsers.data);
+                const lpData = resLaissezPasser.data;
+
+                setLaissezPasser(Array.isArray(lpData) ? lpData[0] : lpData || null);
 
             } catch (err) {
                 console.error(err);
@@ -131,11 +139,11 @@ const DemandeurDetails = () => {
             },
             {
                 label: "DÉPÔT ONDA",
-                status: demande.statusONDA
+                date: laissezPasser?.dateDepotOnda
             },
             {
                 label: "DÉLIVRANCE DE LAISSEZ-PASSER",
-                status: demande.statusDelivrance
+                date: laissezPasser?.dateDelivrance
             }
         ]
         : [];
@@ -184,21 +192,29 @@ const DemandeurDetails = () => {
                                     {validationSteps.map((step, index) => (
                                         <div key={index} className="val-step">
 
-                                            {/* STEP LABEL */}
-                                            <span className={`val-label ${step.status === "EN_ATTENTE" ? "active" : ""}`}>
-                    {step.label}
-                </span>
+                                            {/* LABEL */}
+                                            <span
+                                                className={`val-label ${step.status || step.date ? "active" : ""}`}
+                                            >
+                {step.label}
+            </span>
 
                                             {/* STATUS BADGE */}
                                             {step.status && (
                                                 <span className={`status-badge ${getStatusClass(step.status)}`}>
-                        {getStatusLabel(step.status)}
-                    </span>
+                    {getStatusLabel(step.status)}
+                </span>
+                                            )}
+
+                                            {/* DATE DISPLAY */}
+                                            {step.date && (
+                                                <span className="card-value">
+        {new Date(step.date).toLocaleDateString('fr-FR')}
+    </span>
                                             )}
 
                                         </div>
                                     ))}
-
                                 </div>
                             </div>
                         </div>
@@ -210,9 +226,9 @@ const DemandeurDetails = () => {
                                     <p><strong>Nom:</strong> {demande.lastName}</p>
                                     <p><strong>Nationalité:</strong> {demande.nationalite || "—"}</p>
                                     <p><strong>N° CNIE:</strong> {demande.cnie || "—"}</p>
-                                    <p><strong>Date d'expiration :</strong> {demande.dateExpiration || "—"}</p>
+                                    <p><strong>Date d'expiration :</strong> {demande.dateExpiration ? new Date(demande.dateExpiration).toLocaleDateString('fr-FR') : "—"}</p>
                                     <br/>
-                                    <p><strong>Date de Naissance:</strong> {demande.dateNaissance || "—"}</p>
+                                    <p><strong>Date de Naissance:</strong> {demande.dateNaissance ? new Date(demande.dateNaissance).toLocaleDateString('fr-FR') : "—"}</p>
                                     <p><strong>Lieu de Naissance:</strong> {demande.lieuNaissance || "—"}</p>
                                     <br/>
                                     <p><strong>Fils(le) de:</strong> {demande.filsDe || "—"}</p>
@@ -233,12 +249,14 @@ const DemandeurDetails = () => {
 
                                 <div className="summary-box">
                                     <p><strong>N° Passport:</strong> {demande.passportNumber || "—"}</p>
-                                    <p><strong>Date d'expiration:</strong> {demande.dateExpirationPassport || "—"}</p>
-                                    <p><strong>Emis Le:</strong> {demande.dateDebutPassport || "—"}</p>
+                                    <p><strong>Date d'expiration:</strong> {demande.dateExpirationPassport ? new Date(demande.dateExpirationPassport).toLocaleDateString('fr-FR') : "—"}</p>
+                                    <p><strong>Emis Le:</strong> {demande.dateDebutPassport
+                                        ? new Date(demande.dateDebutPassport).toLocaleDateString('fr-FR')
+                                        : "—"}</p>
                                     <p><strong>Emis A:</strong> {demande.passportEmisA|| "—"}</p>
                                     <br/>
                                     <p><strong>Permis de conduire N°:</strong> {demande.permisNumber || "—"}</p>
-                                    <p><strong>Emis Le:</strong> {demande.dateDebutPermis || "—"}</p>
+                                    <p><strong>Emis Le:</strong> {demande.dateDebutPermis ? new Date(demande.dateDebutPermis).toLocaleDateString('fr-FR') : "—"}</p>
                                     <p><strong>Emis A:</strong> {demande.permisEmisA|| "—"}</p>
                                     <br/>
                                     <p><strong>Permis du porte d'arme:</strong> {demande.permisPortArme || "—"}</p>
@@ -248,7 +266,7 @@ const DemandeurDetails = () => {
                                     <p><strong>Organisme Employeur:</strong> {demande.organisme || "—"}</p>
                                     <p><strong>Service Employeur:</strong> {demande.serviceEmployeur || "—"}</p>
                                     <p><strong>Fonction:</strong> {demande.fonction|| "—"}</p>
-                                    <p><strong>Date de Recrutement:</strong> {demande.dateRecrutement || "—"}</p>
+                                    <p><strong>Date de Recrutement:</strong> {demande.dateRecrutement ? new Date(demande.dateRecrutement).toLocaleDateString('fr-FR') : "—"}</p>
                                     <p><strong>Direction:</strong> {demande.direction|| "—"}</p>
                                     <p><strong>Emploies precedents:</strong> {demande.employesPrecedents|| "—"}</p>
                                 </div>

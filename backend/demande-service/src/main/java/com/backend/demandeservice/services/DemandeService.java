@@ -1,14 +1,10 @@
 package com.backend.demandeservice.services;
 
 import com.backend.demandeservice.clients.UserClient;
-import com.backend.demandeservice.dao.dtos.CommentaireRequest;
 import com.backend.demandeservice.dao.dtos.DemandeRequest;
 import com.backend.demandeservice.dao.dtos.UpdateStatusRequest;
 import com.backend.demandeservice.dao.dtos.UserResponse;
-import com.backend.demandeservice.dao.entities.Commentaire;
 import com.backend.demandeservice.dao.entities.Demande;
-import com.backend.demandeservice.dao.enums.DemandeStatus;
-import com.backend.demandeservice.dao.repositories.CommentaireRepository;
 import com.backend.demandeservice.dao.repositories.DemandeRepository;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
@@ -30,7 +26,6 @@ public class DemandeService {
     private static final Logger log = LoggerFactory.getLogger(DemandeService.class);
 
     private final DemandeRepository demandeRepository;
-    private final CommentaireService commentaireService;
     private final Cloudinary cloudinary;
     private final UserClient userClient;
     private final CircuitBreaker circuitBreaker;
@@ -44,7 +39,6 @@ public class DemandeService {
             RetryRegistry retryRegistry
     ) {
         this.demandeRepository = demandeRepository;
-        this.commentaireService = commentaireService;
         this.cloudinary = cloudinary;
         this.userClient = userClient;
         this.circuitBreaker = circuitBreakerRegistry.circuitBreaker("demande-service");
@@ -145,8 +139,17 @@ public class DemandeService {
             if (request.getStatusDirecteur() != null) {
                 demande.setStatusDirecteur(request.getStatusDirecteur());
             }
+
+            if(request.getSignatureDirecteur() != null){
+                demande.setSignatureDirecteur(request.getSignatureDirecteur());
+            }
+
             if (request.getStatusCorrespondant() != null) {
                 demande.setStatusCorrespondant(request.getStatusCorrespondant());
+            }
+
+            if(request.getSignatureCorrespondant() != null){
+                demande.setSignatureCorrespondant(request.getSignatureCorrespondant());
             }
 
             return demandeRepository.save(demande);

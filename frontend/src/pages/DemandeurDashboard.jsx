@@ -125,7 +125,7 @@ const DemandeurDashboard = () => {
                                         <td>{demande.id}</td>
                                         <td>
                                             {demande.createdAt
-                                                ? new Date(demande.createdAt).toLocaleDateString()
+                                                ? new Date(demande.createdAt).toLocaleDateString('fr-FR')
                                                 : "-"}
                                         </td>
                                         <td>{demande.portes?.join(", ") || "-"}</td>
