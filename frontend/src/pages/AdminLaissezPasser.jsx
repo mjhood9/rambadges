@@ -10,9 +10,12 @@ const AdminLaissezPasser = () => {
 
     const [search, setSearch] = useState('');
     const [demandes, setDemandes] = useState([]);
+    const [entites, setEntites] = useState([]);
     const [laissezPasserMap, setLaissezPasserMap] = useState({});
 
     const [isStatutOpen, setIsStatutOpen] = useState(false);
+    const [selectedDirection, setSelectedDirection] = useState("");
+    const [isDirectionOpen, setIsDirectionOpen] = useState(false);
 
     const [perPageLaissezPasser, setPerPageLaissezPasser] = useState(5);
     const [currentLaissezPasser, setCurrentLaissezPasser] = useState(1);
@@ -31,22 +34,28 @@ const AdminLaissezPasser = () => {
         try {
             setLoading(true);
 
-            // 1. GET ALL LAISSEZ-PASSER
-            const lpRes = await axios.get(
-                "http://localhost:8080/api/laissezpasser",
-                {
+            // 1. FETCH LP + ENTITES IN PARALLEL
+            const [lpRes, entitesRes] = await Promise.all([
+                axios.get("http://localhost:8080/api/laissezpasser", {
                     headers: { Authorization: `Bearer ${token}` }
-                }
-            );
+                }),
+                axios.get("http://localhost:8080/api/entites", {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+            ]);
 
+            // ✅ SET ENTITES
+            setEntites(entitesRes.data || []);
+
+            // 2. FILTER LP
             const lpData = Array.isArray(lpRes.data)
-                ? lpRes.data.filter(lp => lp.dateDelivrance !== null && lp.dateDelivrance !== undefined)
+                ? lpRes.data.filter(lp => lp.dateDelivrance != null)
                 : [];
 
-            // 2. EXTRACT UNIQUE DEMANDE IDS
+            // 3. EXTRACT DEMANDE IDS
             const demandeIds = [...new Set(lpData.map(lp => lp.demandeId))];
 
-            // 3. FETCH ONLY RELATED DEMANDES
+            // 4. FETCH RELATED DEMANDES
             const demandesResponses = await Promise.all(
                 demandeIds.map((id) =>
                     axios.get(`http://localhost:8080/api/demandes/${id}`, {
@@ -55,23 +64,22 @@ const AdminLaissezPasser = () => {
                 )
             );
 
-            // 4. BUILD DEMANDE MAP
+            // 5. BUILD DEMANDE MAP
             const demandesMap = {};
             demandesResponses.forEach((res) => {
                 const d = res.data;
                 demandesMap[d.id] = d;
             });
 
-            // 5. BUILD FINAL LP ARRAY (IMPORTANT)
+            // 6. BUILD FINAL LP ARRAY
             const lpArray = lpData.map((lp) => ({
                 ...lp,
                 demande: demandesMap[lp.demandeId] || null
             }));
 
-            // 6. STORE DATA
             setDemandes(lpArray);
 
-            // OPTIONAL (if you still need map version)
+            // OPTIONAL MAP
             const lpMap = {};
             lpArray.forEach((lp) => {
                 if (lp?.demandeId) {
@@ -116,12 +124,16 @@ const AdminLaissezPasser = () => {
         const matchStatut = laissezPasserStatutFilter
             ? lp.statut === laissezPasserStatutFilter
             : true;
+        const matchDirection = selectedDirection
+            ? demande.direction === selectedDirection
+            : true;
 
         return (
             matchSearch &&
             matchDateDelivrance &&
             matchDateExpiration &&
-            matchStatut
+            matchStatut &&
+            matchDirection
         );
     });
 
@@ -173,6 +185,14 @@ const AdminLaissezPasser = () => {
         }
     };
 
+    if (loading)
+        return (
+            <div className="circle-loader-container">
+                <div className="circle-loader"></div>
+                <p>Chargement...</p>
+            </div>
+        );
+
     return (
         <>
             <Helmet>
@@ -200,7 +220,22 @@ const AdminLaissezPasser = () => {
 
                             {/* FILTERS */}
                             <div className="validation-filters" style={{ display: "flex", gap: "10px" }}>
-
+                                {/* DIRECTION */}
+                                <div className="select-wrap">
+                                    <select
+                                        onClick={() => setIsDirectionOpen(!isDirectionOpen)}
+                                        onBlur={() => setIsDirectionOpen(false)}
+                                        value={selectedDirection}
+                                        onChange={(e) => setSelectedDirection(e.target.value)}
+                                    >
+                                        <option value="">Direction</option>
+                                        {entites.map((e) => (
+                                            <option key={e.id} value={e.name}>
+                                                {e.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <i className={`bx bx-chevron-down select-arrow ${isDirectionOpen ? "open" : ""}`}></i>                                </div>
                                 {/* DATE FILTER */}
                                 <div style={{ position: "relative", width: "220px"}}>
                                     <input
@@ -327,6 +362,7 @@ const AdminLaissezPasser = () => {
                                 <th>N° du laissez passer</th>
                                 <th>Zones/Secteurs touchées</th>
                                 <th>Nom et Prénom</th>
+                                <th>Direction</th>
                                 <th>N° CIN</th>
                                 <th>Date de délivrance</th>
                                 <th>Date d'expiration</th>
@@ -356,6 +392,7 @@ const AdminLaissezPasser = () => {
                                                     ? `${demande.firstName} ${demande.lastName}`
                                                     : "-"}
                                             </td>
+                                            <td>{demande.direction}</td>
 
                                             {/* CNIE */}
                                             <td>{demande?.cnie || "-"}</td>
@@ -382,7 +419,7 @@ const AdminLaissezPasser = () => {
                                                 <div
                                                     className="detail-btn"
                                                     onClick={() =>
-                                                        navigate(`/admin/demandes/${lp.demandeId}`)
+                                                        navigate(`/admin/laissez-passer/${lp.id}`)
                                                     }
                                                 >
                                                     <i className="fa-regular fa-eye"></i>
@@ -394,7 +431,7 @@ const AdminLaissezPasser = () => {
                             ) : (
                                 <tr>
                                     <td
-                                        colSpan="8"
+                                        colSpan="9"
                                         style={{
                                             textAlign: "center",
                                             padding: "20px",

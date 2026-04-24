@@ -210,6 +210,14 @@ const DirecteurDemande = () => {
         }
     };
 
+    if (loading)
+        return (
+            <div className="circle-loader-container">
+                <div className="circle-loader"></div>
+                <p>Chargement...</p>
+            </div>
+        );
+
     return (
         <>
             <Helmet>

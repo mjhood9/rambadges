@@ -5,32 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f2dcc906-fc77-4aa6-9862-c349d6e75c0d" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/3af0fa2c-1514-4f04-aac9-9ff32d312510.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/3af0fa2c-1514-4f04-aac9-9ff32d312510.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/3af0fa2c-1514-4f04-aac9-9ff32d312510/storage_v2/_src_/database/demandedb.eHVcGA/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/3af0fa2c-1514-4f04-aac9-9ff32d312510/storage_v2/_src_/database/demandedb.eHVcGA/schema/public.abK9xQ.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/data_sources_history.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/data_sources_history.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/ee9e9af4-0474-412a-858e-61f24666bce6.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/ee9e9af4-0474-412a-858e-61f24666bce6.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/ee9e9af4-0474-412a-858e-61f24666bce6/storage_v2/_src_/database/userdb.iTErzg/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/ee9e9af4-0474-412a-858e-61f24666bce6/storage_v2/_src_/database/userdb.iTErzg/schema/public.abK9xQ.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/db-forest-config.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/db-forest-config.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/api-gateway/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/api-gateway/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/dao/dtos/DemandeRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/dao/dtos/DemandeRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/dao/dtos/UpdateStatusRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/dao/dtos/UpdateStatusRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/dao/entities/Demande.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/dao/entities/Demande.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/services/CloudinaryService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/services/DemandeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/services/DemandeService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/assets/styles/main.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/assets/styles/main.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/AdminDemande.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/AdminDemande.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/AdminDemandeDetails.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/AdminDemandeDetails.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/AdminLaissezPasser.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/AdminLaissezPasser.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/CorrespondantDemande.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/CorrespondantDemande.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/CorrespondantLaissezPasser.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/CorrespondantLaissezPasser.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/CorrespondantValidation.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/CorrespondantValidation.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/DemandeurDashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DemandeurDashboard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/DemandeurDemande.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DemandeurDemande.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/DemandeurDetails.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DemandeurDetails.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/DirecteurDemande.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DirecteurDemande.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/DirecteurLaissezPasser.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DirecteurLaissezPasser.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/DirecteurValidation.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DirecteurValidation.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/routes/AppRoutes.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/routes/AppRoutes.jsx" afterDir="false" />
     </list>
@@ -42,11 +29,11 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="JavaScript File" />
         <option value="Enum" />
         <option value="Interface" />
         <option value="Class" />
         <option value="JSX File" />
+        <option value="JavaScript File" />
       </list>
     </option>
   </component>
@@ -188,7 +175,7 @@
       <workItem from="1776409275886" duration="4525000" />
       <workItem from="1776416338753" duration="17344000" />
       <workItem from="1776755328189" duration="16889000" />
-      <workItem from="1777014679752" duration="12191000" />
+      <workItem from="1777014679752" duration="18623000" />
     </task>
     <servers />
   </component>

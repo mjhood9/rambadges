@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import "../assets/styles/main.css";
-import { jwtDecode } from "jwt-decode";
 
 const AdminDemandeDetails = () => {
     const { id } = useParams();
@@ -106,7 +105,13 @@ const AdminDemandeDetails = () => {
         return acc;
     }, {});
 
-    if (loading) return <p>Chargement...</p>;
+    if (loading)
+        return (
+            <div className="circle-loader-container">
+                <div className="circle-loader"></div>
+                <p>Chargement...</p>
+            </div>
+        );
     if (error) return <p style={{ color: "red" }}>{error}</p>;
     if (!demande) return <p>Aucune donnée</p>;
 

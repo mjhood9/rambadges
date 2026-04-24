@@ -300,6 +300,13 @@ const DemandeurDemande = () => {
             setLoading(false);
         }
     };
+    if (loading)
+        return (
+            <div className="circle-loader-container">
+                <div className="circle-loader"></div>
+                <p>Chargement...</p>
+            </div>
+        );
 
     const renderStepContent = () => {
         switch (currentStep) {

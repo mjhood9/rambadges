@@ -18,6 +18,10 @@ import DemandeurDetails from "../pages/DemandeurDetails";
 import DirecteurValidation from "../pages/DirecteurValidation";
 import CorrespondantValidation from "../pages/CorrespondantValidation";
 import AdminDemandeDetails from "../pages/AdminDemandeDetails";
+import AdminLaissezPasserDetails from "../pages/AdminLaissezPasserDetails";
+import CorrespondantLaissezPasserDetails from "../pages/CorrespondantLaissezPasserDetails";
+import DirecteurLaissezPasserDetails from "../pages/DirecteurLaissezPasserDetails";
+import DemandeurLaissezPasser from "../pages/DemandeurLaissezPasser";
 
 const ProtectedRoute = ({ children, requiredRole }) => {
     const { user } = useAuthContext();
@@ -89,6 +93,11 @@ const AppRoutes = () => {
                     <DemandeurDetails />
                 </DemandeurLayout>
             } />
+            <Route path="/demande/laissez-passer/:id" element={
+                <DemandeurLayout>
+                    <DemandeurLaissezPasser />
+                </DemandeurLayout>
+            } />
 
             {/* Admin Entité — all pages show ADMIN_ENTITE in navbar */}
             <Route path="/directeur/demandes" element={
@@ -106,6 +115,11 @@ const AppRoutes = () => {
                     <DirecteurLaissezPasser />
                 </AdminEntiteLayout>
             } />
+            <Route path="/directeur/laissez-passer/:id" element={
+                <AdminEntiteLayout>
+                    <DirecteurLaissezPasserDetails />
+                </AdminEntiteLayout>
+            } />
 
             {/* Admin Fonctionnel — all pages show ADMIN_FONCTIONNEL in navbar */}
             <Route path="/correspondantdesurete/demandes" element={
@@ -116,6 +130,11 @@ const AppRoutes = () => {
             <Route path="/correspondantdesurete/laissez-passer" element={
                 <AdminFonctionnelLayout>
                     <CorrespondantLaissezPasser />
+                </AdminFonctionnelLayout>
+            } />
+            <Route path="/correspondantdesurete/laissez-passer/:id" element={
+                <AdminFonctionnelLayout>
+                    <CorrespondantLaissezPasserDetails />
                 </AdminFonctionnelLayout>
             } />
             <Route path="/correspondantdesurete/demande/:id" element={
@@ -138,6 +157,11 @@ const AppRoutes = () => {
             <Route path="/admin/laissez-passer" element={
                 <AdminLayout>
                     <AdminLaissezPasser></AdminLaissezPasser>
+                </AdminLayout>
+            } />
+            <Route path="/admin/laissez-passer/:id" element={
+                <AdminLayout>
+                    <AdminLaissezPasserDetails />
                 </AdminLayout>
             } />
             <Route path="/admin/entites" element={

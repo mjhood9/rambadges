@@ -97,7 +97,13 @@ const DemandeurDetails = () => {
         return acc;
     }, {});
 
-    if (loading) return <p>Chargement...</p>;
+    if (loading)
+        return (
+            <div className="circle-loader-container">
+                <div className="circle-loader"></div>
+                <p>Chargement...</p>
+            </div>
+        );
     if (error) return <p style={{ color: "red" }}>{error}</p>;
     if (!demande) return <p>Aucune donnée</p>;
 
@@ -151,7 +157,7 @@ const DemandeurDetails = () => {
     return (
         <>
             <Helmet>
-                <title>Détails Demande</title>
+                <title>RAM Badges | Détails Demande</title>
             </Helmet>
 
             <div className="background">
