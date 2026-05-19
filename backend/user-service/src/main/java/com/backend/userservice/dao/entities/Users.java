@@ -12,6 +12,9 @@ public class Users {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "keycloak_id")
+    private String keycloakId;
+
     @Column(nullable = false)
     private String firstName;
 
@@ -23,9 +26,6 @@ public class Users {
 
     @Column(unique = true, nullable = false)
     private String email;
-
-    @Column(nullable = false)
-    private String password;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -44,7 +44,6 @@ public class Users {
     public String getLastName() { return lastName; }
     public String getUsername() { return username; }
     public String getEmail() { return email; }
-    public String getPassword() { return password; }
     public Set<Role> getRoles() { return roles; }
     public Entite getEntite() { return entite; }
 
@@ -53,18 +52,24 @@ public class Users {
     public void setLastName(String lastName) { this.lastName = lastName; }
     public void setUsername(String username) { this.username = username; }
     public void setEmail(String email) { this.email = email; }
-    public void setPassword(String password) { this.password = password; }
     public void setRoles(Set<Role> roles) { this.roles = roles; }
     public void setEntite(Entite entite) { this.entite = entite; }
 
     public static Builder builder() { return new Builder(); }
+
+    public String getKeycloakId() {
+        return keycloakId;
+    }
+
+    public void setKeycloakId(String keycloakId) {
+        this.keycloakId = keycloakId;
+    }
 
     public static class Builder {
         private String firstName;
         private String lastName;
         private String email;
         private String username;
-        private String password;
         private Set<Role> roles = new HashSet<>();
         private Entite entite;
 
@@ -72,7 +77,6 @@ public class Users {
         public Builder lastName(String lastName) { this.lastName = lastName; return this; }
         public Builder username(String username) { this.username = username; return this; }
         public Builder email(String email) { this.email = email; return this; }
-        public Builder password(String password) { this.password = password; return this; }
         public Builder roles(Set<Role> roles) { this.roles = roles; return this; }
         public Builder entite(Entite entite) { this.entite = entite; return this; }
 
@@ -82,7 +86,6 @@ public class Users {
             user.lastName = this.lastName;
             user.username = this.username;
             user.email = this.email;
-            user.password = this.password;
             user.roles = this.roles;
             user.entite = this.entite;
             return user;

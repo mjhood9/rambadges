@@ -123,6 +123,91 @@ public class DemandeService {
     }
 
     // =========================
+// UPDATE DEMANDE
+// =========================
+    public Demande updateDemande(Long id, DemandeRequest request) {
+
+        return execute(() -> {
+
+            Demande demande = demandeRepository.findById(id)
+                    .orElseThrow(() ->
+                            new RuntimeException("Demande not found: " + id)
+                    );
+
+            // update fields
+            mapRequestToDemande(request, demande);
+
+            // update CNIE if new file exists
+            if (request.getCnieFile() != null &&
+                    !request.getCnieFile().isEmpty()) {
+
+                try {
+                    // delete old file
+                    if (demande.getCnieFilePublicId() != null) {
+                        cloudinary.uploader().destroy(
+                                demande.getCnieFilePublicId(),
+                                ObjectUtils.emptyMap()
+                        );
+                    }
+
+                    // upload new
+                    Map result = uploadFile(
+                            request.getCnieFile(),
+                            "demandes/cnie"
+                    );
+
+                    demande.setCnieFileUrl(
+                            result.get("secure_url").toString()
+                    );
+
+                    demande.setCnieFilePublicId(
+                            result.get("public_id").toString()
+                    );
+
+                } catch (Exception e) {
+                    log.error("CNIE update failed: {}", e.getMessage());
+                }
+            }
+
+            // update PHOTO if new file exists
+            if (request.getPhotoFile() != null &&
+                    !request.getPhotoFile().isEmpty()) {
+
+                try {
+
+                    // delete old
+                    if (demande.getPhotoFilePublicId() != null) {
+                        cloudinary.uploader().destroy(
+                                demande.getPhotoFilePublicId(),
+                                ObjectUtils.emptyMap()
+                        );
+                    }
+
+                    // upload new
+                    Map result = uploadFile(
+                            request.getPhotoFile(),
+                            "demandes/photos"
+                    );
+
+                    demande.setPhotoFileUrl(
+                            result.get("secure_url").toString()
+                    );
+
+                    demande.setPhotoFilePublicId(
+                            result.get("public_id").toString()
+                    );
+
+                } catch (Exception e) {
+                    log.error("Photo update failed: {}", e.getMessage());
+                }
+            }
+
+            return demandeRepository.save(demande);
+
+        }, "updateDemande");
+    }
+
+    // =========================
     // UPDATE STATUS
     // =========================
     public Demande updateStatus(Long id, UpdateStatusRequest request) {

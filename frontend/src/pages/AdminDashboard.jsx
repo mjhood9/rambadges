@@ -4,6 +4,7 @@ import axios from 'axios';
 import { jwtDecode } from "jwt-decode";
 import "../assets/styles/main.css";
 import CustomSelect from "../components/layout/CustomSelect";
+import { useNotification } from '../context/NotificationContext';
 
 const AdminDashboard = () => {
     const [users, setUsers] = useState([]);
@@ -16,13 +17,11 @@ const AdminDashboard = () => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [editingUser, setEditingUser] = useState(null);
 
-    const [name, setName] = useState('');
     const [closing, setClosing] = useState(false);
 
     const [lastName, setLastName] = useState('');
     const [firstName, setFirstName] = useState('');
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [selectedRoles, setSelectedRoles] = useState([]);
     const [selectedEntite, setSelectedEntite] = useState('');
     const rolesList = ["DEMANDEUR", "ADMIN_ENTITE", "ADMIN_FONCTIONNEL", "ADMIN"]; // Enum values
@@ -30,6 +29,9 @@ const AdminDashboard = () => {
 
     const [currentPage, setCurrentPage] = useState(1);
     const [perPage, setPerPage] = useState(5);
+    const [submitting, setSubmitting] = useState(false);
+
+    const { addNotification } = useNotification();
 
     const fetchAllEntites = async () => {
         try {
@@ -45,13 +47,14 @@ const AdminDashboard = () => {
         }
     };
 
-    // Fetch users
     const fetchUsers = async () => {
         try {
             const token = localStorage.getItem('token');
 
             const decoded = jwtDecode(token);
-            const currentUserId = decoded.sub;
+
+            // 🔥 get email from token
+            const currentUserEmail = decoded.email || decoded.preferred_username;
 
             const response = await axios.get(
                 'http://localhost:8080/api/users',
@@ -62,9 +65,9 @@ const AdminDashboard = () => {
                 }
             );
 
-            // ✅ exclude current user using username
+            // ✅ exclude current user by email
             const filteredUsers = response.data.filter(
-                user => user.id !== Number(currentUserId)
+                user => user.email !== currentUserEmail
             );
 
             setUsers(filteredUsers);
@@ -127,7 +130,6 @@ const AdminDashboard = () => {
             setFirstName('');
             setLastName('');
             setEmail('');
-            setPassword('');
             setSelectedRoles([]);
             setSelectedEntite('');
             setClosing(false);
@@ -153,16 +155,16 @@ const AdminDashboard = () => {
         e.preventDefault();
 
         try {
+            setSubmitting(true);
             const token = localStorage.getItem('token');
 
             const payload = {
                 firstName,
                 lastName,
                 email,
-                username: `${firstName.trim()} ${lastName.trim()}`, // 👈 if your backend uses username
-                password,
-                roles: selectedRoles, // ["ADMIN", "DEMANDEUR", ...]
-                entiteId: selectedEntite || null // 👈 send only if selected
+                username: `${firstName.trim()} ${lastName.trim()}`,
+                roles: selectedRoles,
+                entiteId: selectedEntite || null
             };
 
             await axios.post(
@@ -176,59 +178,82 @@ const AdminDashboard = () => {
                 }
             );
 
+            addNotification('Utilisateur créé avec succès 🎉', 'success');
+
             // reset form
             setFirstName('');
             setLastName('');
             setEmail('');
-            setPassword('');
             setSelectedRoles([]);
             setSelectedEntite('');
 
             handleClose('add');
-            fetchUsers(); // refresh table
+            fetchUsers();
 
         } catch (err) {
+            const message =
+                err.response?.data?.message ||
+                'Erreur lors de la création de l’utilisateur';
+
             console.error("Error adding user:", err);
+
+            addNotification(message, 'error');
+        }
+        finally {
+            setSubmitting(false);
         }
     };
 
     // 🔹 Update API function
     const handleUpdateUser = async () => {
-        if (!editingUser) return; // safety check
+        if (!editingUser) return;
 
         try {
+            setSubmitting(true);
             const payload = {
                 firstName,
                 lastName,
                 username: `${firstName.trim()} ${lastName.trim()}`,
                 email,
-                password,
                 roles: selectedRoles,
-                entiteId: selectedRoles.includes("ADMIN_ENTITE") ? selectedEntite : null,
+                entiteId: selectedRoles.includes("ADMIN_ENTITE")
+                    ? selectedEntite
+                    : null,
             };
 
             const token = localStorage.getItem('token');
 
-            const response = await fetch(`http://localhost:8080/api/users/${editingUser.id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`, // ✅ add this
-                },
-                body: JSON.stringify(payload),
-            });
+            const response = await fetch(
+                `http://localhost:8080/api/users/${editingUser.id}`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(payload),
+                }
+            );
 
-            if (!response.ok) throw new Error('Erreur lors de la mise à jour');
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText || 'Erreur lors de la mise à jour');
+            }
 
-            const updatedUser = await response.json();
-            console.log("User updated:", updatedUser);
+            addNotification('Utilisateur mis à jour avec succès ✏️', 'success');
 
             handleClose('edit');
-            fetchUsers(); // refresh list
+            fetchUsers();
 
         } catch (err) {
             console.error(err);
-            alert("Erreur lors de la mise à jour de l'utilisateur");
+
+            addNotification(
+                err.message || "Erreur lors de la mise à jour de l'utilisateur",
+                'error'
+            );
+        } finally {
+            setSubmitting(false);
         }
     };
     
@@ -315,7 +340,6 @@ const AdminDashboard = () => {
                                                         setFirstName(user.firstName);
                                                         setLastName(user.lastName);
                                                         setEmail(user.email);
-                                                        setPassword(''); // leave empty for security
                                                         setSelectedRoles(user.roles.map(r => r.name));
 
                                                         // Prefill entite by matching user.entite.id with options
@@ -492,17 +516,6 @@ const AdminDashboard = () => {
                                 />
                             </div>
 
-                            {/* Password */}
-                            <div className="form-group">
-                                <label>Mot de passe</label>
-                                <input
-                                    type="password"
-                                    value={password}
-                                    placeholder="Saississez ici"
-                                    onChange={(e) => setPassword(e.target.value)}
-                                />
-                            </div>
-
                             {/* Roles multi-select */}
                             <div className="form-group">
                                 <label>Rôles</label>
@@ -567,8 +580,20 @@ const AdminDashboard = () => {
                                     <i className="fa-solid fa-arrow-left"/> Annuler
                                 </button>
 
-                                <button type="submit" className="submit-btn">
-                                    Enregistrer <i className="fa-solid fa-arrow-right"/>
+                                <button
+                                    type="submit"
+                                    className="submit-btn"
+                                    disabled={submitting}
+                                >
+                                    {submitting ? (
+                                        <>
+                                            <span className="spinner"></span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            Enregistrer <i className="fa-solid fa-arrow-right"/>
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         </form>
@@ -623,17 +648,6 @@ const AdminDashboard = () => {
                                     value={email}
                                     placeholder="Saississez ici"
                                     onChange={(e) => setEmail(e.target.value)}
-                                />
-                            </div>
-
-                            {/* Password */}
-                            <div className="form-group">
-                                <label>Mot de passe</label>
-                                <input
-                                    type="password"
-                                    value={password}
-                                    placeholder="Saississez ici"
-                                    onChange={(e) => setPassword(e.target.value)}
                                 />
                             </div>
 
@@ -706,8 +720,21 @@ const AdminDashboard = () => {
                                     <i className="fa-solid fa-arrow-left"/> Annuler
                                 </button>
 
-                                <button type="submit" className="submit-btn">
-                                    Enregistrer <i className="fa-solid fa-arrow-right"/>
+                                <button
+                                    type="submit"
+                                    className="submit-btn"
+                                    disabled={submitting}
+                                >
+                                    {submitting ? (
+                                        <>
+                                            <span className="spinner"></span>
+                                            Chargement...
+                                        </>
+                                    ) : (
+                                        <>
+                                            Enregistrer <i className="fa-solid fa-arrow-right"/>
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         </form>
@@ -734,28 +761,55 @@ const AdminDashboard = () => {
                                 <i className="fa-solid fa-arrow-left"/>Annuler
                             </button>
                             <button
-                                className="submit-btn"
+                                className="submit-btn danger"
+                                disabled={submitting}
                                 onClick={async () => {
-                                    if (!selectedUser) return;
+                                    if (!selectedUser) {
+                                        addNotification('Aucun utilisateur sélectionné', 'warning');
+                                        return;
+                                    }
+
+                                    setSubmitting(true);
 
                                     try {
-                                        // Call API to delete user
-                                        await axios.delete(`http://localhost:8080/api/users/${selectedUser.id}`, {
-                                            headers: {
-                                                Authorization: `Bearer ${localStorage.getItem('token')}`
+                                        await axios.delete(
+                                            `http://localhost:8080/api/users/${selectedUser.id}`,
+                                            {
+                                                headers: {
+                                                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                                                }
                                             }
-                                        });
+                                        );
 
-                                        // Close modal and refresh user list
+                                        addNotification('Utilisateur supprimé avec succès 🗑️', 'success');
+
                                         handleClose('delete');
-                                        fetchUsers(); // make sure this function fetches updated user list
+                                        fetchUsers();
+
                                     } catch (err) {
+                                        const message =
+                                            err.response?.data?.message ||
+                                            'Erreur lors de la suppression de l’utilisateur';
+
                                         console.error('Delete error:', err);
-                                        alert('Erreur lors de la suppression de l’utilisateur');
+
+                                        addNotification(message, 'error');
+
+                                    } finally {
+                                        setSubmitting(false);
                                     }
                                 }}
                             >
-                                Confirmer <i className="fa-solid fa-arrow-right" />
+                                {submitting ? (
+                                    <>
+                                        <span className="btn-spinner"></span>
+                                        Suppression...
+                                    </>
+                                ) : (
+                                    <>
+                                        Confirmer <i className="fa-solid fa-arrow-right" />
+                                    </>
+                                )}
                             </button>
                         </div>
                     </div>

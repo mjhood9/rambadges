@@ -3,6 +3,7 @@ import { AuthProvider } from './context/AuthContext';
 import AppRoutes from './routes/AppRoutes';
 import { HelmetProvider } from 'react-helmet-async';
 import './assets/styles/global.css';
+import {NotificationProvider} from "./context/NotificationContext";
 
 const App = () => {
     return (
@@ -17,9 +18,11 @@ const App = () => {
             <HelmetProvider>
                 <BrowserRouter>
                     <AuthProvider>
-                        <div style={styles.content}>
-                            <AppRoutes />
-                        </div>
+                        <NotificationProvider>
+                            <div style={styles.content}>
+                                <AppRoutes />
+                            </div>
+                        </NotificationProvider>
                     </AuthProvider>
                 </BrowserRouter>
             </HelmetProvider>

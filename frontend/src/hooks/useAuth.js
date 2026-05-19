@@ -14,11 +14,25 @@ export const useAuth = () => {
         setError(null);
         try {
             const response = await signIn(data);
-            const { token, ...userData } = response.data;
+
+            // Keycloak returns access_token
+            const token = response.data.access_token;
+
+            // decode token to get user info
+            const payload = JSON.parse(atob(token.split('.')[1]));
+
+            const userData = {
+                email: payload.email,
+                fullName: payload.name,
+                username: payload.preferred_username,
+                roles: payload.realm_access?.roles?.filter(r =>
+                    ['DEMANDEUR', 'ADMIN_ENTITE', 'ADMIN_FONCTIONNEL', 'ADMIN'].includes(r)
+                ) || []
+            };
+
             login(userData, token);
 
             const roles = userData.roles;
-
             if (roles.length === 1) {
                 userData.currentRole = roles[0];
                 redirectByRole(roles[0], navigate);
@@ -26,10 +40,8 @@ export const useAuth = () => {
                 navigate('/select-role');
             }
         } catch (err) {
-            if (err.response?.data?.message) {
-                setError(err.response.data.message);
-            } else if (typeof err.response?.data === 'string') {
-                setError(err.response.data);
+            if (err.response?.data?.error_description) {
+                setError(err.response.data.error_description);
             } else {
                 setError('Email ou mot de passe incorrect');
             }

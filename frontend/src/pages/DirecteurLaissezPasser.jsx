@@ -11,12 +11,9 @@ const DirecteurLaissezPasser = () => {
 
     const [search, setSearch] = useState('');
     const [demandes, setDemandes] = useState([]);
-    const [entites, setEntites] = useState([]);
     const [laissezPasserMap, setLaissezPasserMap] = useState({});
 
     const [isStatutOpen, setIsStatutOpen] = useState(false);
-    const [selectedDirection, setSelectedDirection] = useState("");
-    const [isDirectionOpen, setIsDirectionOpen] = useState(false);
 
     const [perPageLaissezPasser, setPerPageLaissezPasser] = useState(5);
     const [currentLaissezPasser, setCurrentLaissezPasser] = useState(1);
@@ -30,73 +27,81 @@ const DirecteurLaissezPasser = () => {
 
     const fetchData = async () => {
         const token = localStorage.getItem("token");
-        const decoded = jwtDecode(token);
-        const userId = Number(decoded.sub);
         if (!token) return;
+
+        const decoded = jwtDecode(token);
+        console.log("🔐 decoded:", decoded);
+
+        const fullName =
+            `${decoded.given_name || ""} ${decoded.family_name || ""}`.trim();
+
+        const normalize = (s) =>
+            (s || "").toLowerCase().trim().replace(/\s+/g, " ");
 
         try {
             setLoading(true);
 
-            // 1. FETCH USERS + LP IN PARALLEL
-            const [usersRes, lpRes] = await Promise.all([
-                axios.get("http://localhost:8080/api/users/with-entite", {
+            // 1. GET ALL LAISSEZ-PASSER
+            const lpRes = await axios.get(
+                "http://localhost:8080/api/laissezpasser",
+                {
                     headers: { Authorization: `Bearer ${token}` }
-                }),
-                axios.get("http://localhost:8080/api/laissezpasser", {
-                    headers: { Authorization: `Bearer ${token}` }
-                })
-            ]);
-
-            const users = usersRes.data;
-            const lpData = Array.isArray(lpRes.data) ? lpRes.data : [];
-
-            // 2. CURRENT USER
-            const currentUser = users.find(
-                (u) => Number(u.id) === Number(userId)
+                }
             );
 
-            if (!currentUser?.entite?.name) {
-                setDemandes([]);
-                return;
-            }
+            const lpData = Array.isArray(lpRes.data) ? lpRes.data : [];
+            console.log("📄 lpData:", lpData);
 
-            const userDirection = currentUser.entite.name;
-
-            // 3. GET DEMANDE IDS FROM LP
+            // 2. EXTRACT UNIQUE DEMANDE IDS
             const demandeIds = [...new Set(lpData.map(lp => lp.demandeId))];
+            console.log("🆔 demandeIds:", demandeIds);
 
-            // 4. FETCH RELATED DEMANDES
+            // 3. FETCH DEMANDES BY ID
             const demandesResponses = await Promise.all(
                 demandeIds.map((id) =>
-                    axios.get(`http://localhost:8080/api/demandes/${id}`, {
-                        headers: { Authorization: `Bearer ${token}` }
-                    })
+                    axios
+                        .get(`http://localhost:8080/api/demandes/${id}`, {
+                            headers: { Authorization: `Bearer ${token}` }
+                        })
+                        .then(res => res.data)
+                        .catch(() => null)
                 )
             );
 
-            // 5. BUILD DEMANDE MAP
-            const demandesMap = {};
-            demandesResponses.forEach((res) => {
-                const d = res.data;
-                demandesMap[d.id] = d;
+            const demandes = demandesResponses.filter(Boolean);
+            console.log("📦 demandes:", demandes);
+
+            // 4. FIND CURRENT USER DEMANDE (BY FULL NAME)
+            const currentUserFull = normalize(fullName);
+
+            const userDemandes = demandes.filter((d) => {
+                const demandeFull = normalize(`${d.firstName} ${d.lastName}`);
+                return demandeFull === currentUserFull;
             });
 
-            // 6. MERGE LP + DEMANDE
-            const lpArray = lpData.map((lp) => ({
-                ...lp,
-                demande: demandesMap[lp.demandeId] || null
-            }));
+            console.log("🎯 userDemandes:", userDemandes);
 
-            // 7. ✅ FILTER BY USER ENTITE (DIRECTION)
-            const filteredLP = lpArray.filter(
-                (lp) => lp.demande?.direction === userDirection
+            // 5. KEEP ONLY LP RELATED TO USER DEMANDES
+            const filteredLP = lpData.filter((lp) =>
+                userDemandes.some(d => d.id === lp.demandeId)
             );
 
-            // 8. STORE
-            setDemandes(filteredLP);
+            console.log("📌 filteredLP:", filteredLP);
 
+            // 6. BUILD FINAL ENRICHED DATA (IMPORTANT FIX)
+            const enrichedLP = filteredLP.map((lp) => ({
+                ...lp,
+                demande: userDemandes.find(d => d.id === lp.demandeId) || null
+            }));
+
+            console.log("🚀 enrichedLP:", enrichedLP);
+
+            // 7. STATE UPDATE
+            setDemandes(enrichedLP);
+
+            // optional map if you still use it elsewhere
             const lpMap = {};
-            filteredLP.forEach((lp) => {
+            enrichedLP.forEach((lp) => {
                 lpMap[lp.demandeId] = lp;
             });
 
@@ -382,14 +387,14 @@ const DirecteurLaissezPasser = () => {
                                             </td>
 
                                             {/* PORTES */}
-                                            <td>{demande.portes?.length ? demande.portes.join(", ") : "-"}</td>
+                                            <td>{demande?.portes?.length ? demande?.portes.join(", ") : "-"}</td>
 
                                             {/* ZONES */}
                                             <td>
                                                 {demande?.zones || "-"}
                                             </td>
                                             {/* SECTEURS */}
-                                            <td>{demande.secteur?.length ? demande.secteur.join(", ") : "-"}</td>
+                                            <td>{demande?.secteur?.length ? demande.secteur.join(", ") : "-"}</td>
 
                                             {/* DATE DELIVRANCE */}
                                             <td>

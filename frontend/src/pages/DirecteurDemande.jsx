@@ -34,15 +34,24 @@ const DirecteurDemande = () => {
         if (!token) return;
 
         const decoded = jwtDecode(token);
-        const userId = Number(decoded.sub);
+
+        console.log("🔐 decoded token:", decoded);
+
+        const userFullName =
+            `${decoded.given_name || ""} ${decoded.family_name || ""}`
+                .trim()
+                .toLowerCase();
+
+        const normalize = (str) =>
+            str?.toLowerCase().trim().replace(/\s+/g, " ");
 
         const fetchData = async () => {
             try {
                 setLoading(true);
 
-                // 1. USERS
+                // 1. GET USERS
                 const usersRes = await axios.get(
-                    "http://localhost:8080/api/users/with-entite",
+                    "http://localhost:8080/api/users",
                     {
                         headers: { Authorization: `Bearer ${token}` }
                     }
@@ -50,25 +59,29 @@ const DirecteurDemande = () => {
 
                 const users = usersRes.data;
 
-                // 2. Current user
-                const currentUser = users.find(
-                    (u) => Number(u.id) === userId
-                );
+                console.log("👥 users:", users);
 
-                if (!currentUser?.entite?.id) {
+                // 2. FIND CURRENT USER BY FULL NAME
+                const currentUser = users.find((u) => {
+                    const fullName = normalize(`${u.firstName} ${u.lastName}`);
+                    return fullName === userFullName;
+                });
+
+                console.log("🎯 currentUser:", currentUser);
+
+                const entiteId = currentUser?.entite?.id;
+                const entiteName = currentUser?.entite?.name;
+
+                console.log("🏢 entiteId:", entiteId);
+                console.log("🏢 entiteName:", entiteName);
+
+                if (!entiteName) {
                     setDemandes([]);
                     setValidations([]);
                     return;
                 }
 
-                const entiteId = currentUser.entite.id;
-
-                // 3. Users in same entite
-                const sameEntiteUserIds = users
-                    .filter((u) => u.entite?.id === entiteId)
-                    .map((u) => Number(u.id));
-
-                // 4. Get all demandes
+                // 3. GET DEMANDES
                 const demandesRes = await axios.get(
                     "http://localhost:8080/api/demandes",
                     {
@@ -78,26 +91,33 @@ const DirecteurDemande = () => {
 
                 const allDemandes = demandesRes.data;
 
-                // 5. Filter by entite
-                const sameEntiteDemandes = allDemandes.filter((d) =>
-                    sameEntiteUserIds.includes(Number(d.userId))
+                console.log("📄 all demandes:", allDemandes);
+
+                // 4. FILTER BY ENTITE NAME (direction)
+                const entiteDemandes = allDemandes.filter(
+                    (d) =>
+                        normalize(d.direction) === normalize(entiteName)
                 );
 
-                // 6. Split validations
-                const validationsData = sameEntiteDemandes.filter(
-                    (d) => d.statusDirecteur === "EN_ATTENTE"
+                console.log("📌 filtered demandes:", entiteDemandes);
+
+                setDemandes(entiteDemandes);
+
+                // 5. validations
+                setValidations(
+                    entiteDemandes.filter(
+                        (d) => d.statusDirecteur === "EN_ATTENTE"
+                    )
                 );
 
-                setDemandes(sameEntiteDemandes);
-                setValidations(validationsData);
-
-                // 7. ✅ FETCH LAISSEZ-PASSER FOR EACH DEMANDE
-                const lpRequests = sameEntiteDemandes.map((d) =>
-                    axios.get(`http://localhost:8080/api/laissezpasser`, {
-                        params: { demandeId: d.id },
-                        headers: { Authorization: `Bearer ${token}` }
-                    })
-                        .then(res => ({ id: d.id, data: res.data }))
+                // 6. laissez-passer
+                const lpRequests = entiteDemandes.map((d) =>
+                    axios
+                        .get(`http://localhost:8080/api/laissezpasser`, {
+                            params: { demandeId: d.id },
+                            headers: { Authorization: `Bearer ${token}` }
+                        })
+                        .then((res) => ({ id: d.id, data: res.data }))
                         .catch(() => ({ id: d.id, data: null }))
                 );
 
@@ -105,14 +125,15 @@ const DirecteurDemande = () => {
 
                 const lpMap = {};
                 lpResults.forEach((r) => {
-                    lpMap[r.id] = Array.isArray(r.data) ? r.data[0] : r.data;
+                    lpMap[r.id] = Array.isArray(r.data)
+                        ? r.data[0]
+                        : r.data;
                 });
 
                 setLaissezPasserMap(lpMap);
-
             } catch (err) {
                 console.error(err);
-                setError("Erreur lors du chargement des demandes");
+                setError("Erreur lors du chargement");
             } finally {
                 setLoading(false);
             }

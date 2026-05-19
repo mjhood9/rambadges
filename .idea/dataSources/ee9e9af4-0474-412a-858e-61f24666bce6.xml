@@ -3,9 +3,17 @@
   <database-model serializer="dbm" dbms="POSTGRES" family-id="POSTGRES" format-version="4.55">
     <root id="1">
       <DateStyle>mdy</DateStyle>
-      <IntrospectionStateNumber>994</IntrospectionStateNumber>
+      <Grants>1||-9223372036854775808|c|G
+1||10|c|G
+1||10|C|G
+1||10|T|G
+4||-9223372036854775808|c|G
+4||10|c|G
+4||10|C|G
+4||10|T|G</Grants>
+      <IntrospectionStateNumber>1156</IntrospectionStateNumber>
       <ServerVersion>18.3</ServerVersion>
-      <StartupTime>1776416201</StartupTime>
+      <StartupTime>1778833390</StartupTime>
       <TimeZones>true ACDT
 true ACSST
 false ACST
@@ -814,7 +822,7 @@ false Zulu
 14813||10|C|G
 14813||-9223372036854775808|U|G
 14813||10|U|G</Grants>
-      <IntrospectionStateNumber>994</IntrospectionStateNumber>
+      <IntrospectionStateNumber>1156</IntrospectionStateNumber>
       <ObjectId>16386</ObjectId>
       <OwnerName>postgres</OwnerName>
     </database>
@@ -4330,11 +4338,11 @@ false Zulu
       <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
       <Comment>standard public schema</Comment>
       <Current>1</Current>
-      <LastIntrospectionL1Xid>994</LastIntrospectionL1Xid>
-      <LastIntrospectionL2Xid>994</LastIntrospectionL2Xid>
-      <LastIntrospectionL3Xid>994</LastIntrospectionL3Xid>
+      <LastIntrospectionL1Xid>1156</LastIntrospectionL1Xid>
+      <LastIntrospectionL2Xid>1156</LastIntrospectionL2Xid>
+      <LastIntrospectionL3Xid>1156</LastIntrospectionL3Xid>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
-      <LastIntrospectionLocalTimestamp>2026-04-24.07:14:40</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2026-05-19.07:14:35</LastIntrospectionLocalTimestamp>
       <LastIntrospectionVersion>260210</LastIntrospectionVersion>
       <ObjectId>2200</ObjectId>
       <StateNumber>546</StateNumber>
@@ -4391,7 +4399,7 @@ false Zulu
     <table id="281" parent="274" name="users">
       <DetailsLevel>2</DetailsLevel>
       <ObjectId>16412</ObjectId>
-      <StateNumber>769</StateNumber>
+      <StateNumber>1054</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
@@ -4570,25 +4578,24 @@ role_id</ColNames>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="305" parent="281" name="password">
-      <NotNull>1</NotNull>
-      <Position>5</Position>
-      <StateNumber>759</StateNumber>
-      <StoredType>varchar(255)|0s</StoredType>
-      <TypeId>1043</TypeId>
-    </column>
-    <column id="306" parent="281" name="username">
+    <column id="305" parent="281" name="username">
       <NotNull>1</NotNull>
       <Position>6</Position>
       <StateNumber>759</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="307" parent="281" name="entite_id">
+    <column id="306" parent="281" name="entite_id">
       <Position>7</Position>
       <StateNumber>759</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
+    </column>
+    <column id="307" parent="281" name="keycloak_id">
+      <Position>8</Position>
+      <StateNumber>1054</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
     </column>
     <foreign-key id="308" parent="281" name="fkm8rassg5mhe5aotttnb8yk5em">
       <ColNames>entite_id</ColNames>

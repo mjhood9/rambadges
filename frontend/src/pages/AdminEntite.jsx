@@ -4,6 +4,7 @@ import axios from 'axios';
 import { jwtDecode } from "jwt-decode";
 import "../assets/styles/main.css";
 import CustomSelect from "../components/layout/CustomSelect";
+import { useNotification } from '../context/NotificationContext';
 
 const AdminEntite = () => {
     const [entites, setEntites] = useState([]);
@@ -12,8 +13,8 @@ const AdminEntite = () => {
     const [currentPageAssigned, setCurrentPageAssigned] = useState(1);
     const [currentPageGestion, setCurrentPageGestion] = useState(1);
 
-    const [perPageAttribuees, setPerPageAttribuees] = useState(1);
-    const [perPageGestion, setPerPageGestion] = useState(1);
+    const [perPageAttribuees, setPerPageAttribuees] = useState(5);
+    const [perPageGestion, setPerPageGestion] = useState(5);
 
     const [assignedUsers, setAssignedUsers] = useState([]);
 
@@ -30,6 +31,7 @@ const AdminEntite = () => {
     const [editEntiteName, setEditEntiteName] = useState('');
 
     const [closing, setClosing] = useState(false);
+    const { addNotification } = useNotification();
 
     // Fetch all entities once on mount
     const fetchEntites = async () => {
@@ -47,11 +49,10 @@ const AdminEntite = () => {
         try {
             const token = localStorage.getItem("token");
 
-            // decode JWT
             const decoded = jwtDecode(token);
 
-            // adjust this depending on your token payload (id, sub, email, etc.)
-            const currentUserId = Number(decoded.sub);
+            // 🔥 get current user email from token
+            const currentUserEmail = decoded.email || decoded.preferred_username;
 
             const response = await axios.get(
                 "http://localhost:8080/api/users/with-entite",
@@ -60,9 +61,9 @@ const AdminEntite = () => {
                 }
             );
 
-            // filter out current user
+            // ✅ exclude current user by email
             const filteredUsers = response.data.filter(
-                (user) => Number(user.id) !== currentUserId
+                (user) => user.email !== currentUserEmail
             );
 
             setAssignedUsers(filteredUsers);
@@ -148,13 +149,17 @@ const AdminEntite = () => {
     // Add entity
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!newEntiteName.trim()) return;
+        if (!newEntiteName.trim()) {
+            addNotification('Le nom est requis', 'warning');
+            return;
+        }
 
         setSubmitting(true);
         setError(null);
 
         try {
-            await axios.post('http://localhost:8080/api/entites',
+            await axios.post(
+                'http://localhost:8080/api/entites',
                 { name: newEntiteName },
                 {
                     headers: {
@@ -163,11 +168,19 @@ const AdminEntite = () => {
                     }
                 }
             );
+
+            addNotification('Entité ajoutée avec succès ✅', 'success');
+
             setNewEntiteName('');
             handleClose('add');
             fetchEntites();
+
         } catch (err) {
-            setError(err.response?.data?.message || 'Erreur lors de l\'ajout');
+            const message =
+                err.response?.data?.message || "Erreur lors de l'ajout";
+
+            addNotification(message, 'error');
+
         } finally {
             setSubmitting(false);
         }
@@ -176,7 +189,13 @@ const AdminEntite = () => {
     // Edit entity
     const handleEditSubmit = async (e) => {
         e.preventDefault();
-        if (!editEntiteName.trim() || !editingEntite) return;
+
+        if (!editEntiteName.trim()) {
+            addNotification('Le nom est requis', 'warning');
+            return;
+        }
+
+        if (!editingEntite) return;
 
         setSubmitting(true);
         setError(null);
@@ -193,10 +212,16 @@ const AdminEntite = () => {
                 }
             );
 
+            addNotification('Entité modifiée avec succès ✏️', 'success');
+
             handleClose('edit');
             fetchEntites();
+
         } catch (err) {
-            setError(err.response?.data?.message || 'Erreur lors de la modification');
+            const message =
+                err.response?.data?.message || 'Erreur lors de la modification';
+            addNotification(message, 'error');
+
         } finally {
             setSubmitting(false);
         }
@@ -204,21 +229,37 @@ const AdminEntite = () => {
 
     // Delete entity
     const handleDelete = async () => {
-        if (!selectedEntite) return;
+        if (!selectedEntite) {
+            addNotification('Aucune entité sélectionnée', 'warning');
+            return;
+        }
 
         setClosing(true);
+
         setTimeout(async () => {
             try {
                 await axios.delete(
                     `http://localhost:8080/api/entites/${selectedEntite.id}`,
                     {
-                        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem('token')}`
+                        }
                     }
                 );
+
+                addNotification('Entité supprimée avec succès 🗑️', 'success');
+
                 handleClose('delete');
                 fetchEntites();
+
             } catch (err) {
+                const message =
+                    err.response?.data?.message || 'Erreur lors de la suppression';
+
                 console.error('Delete error:', err);
+
+                addNotification(message, 'error');
+
                 setClosing(false);
             }
         }, 400);
@@ -304,10 +345,10 @@ const AdminEntite = () => {
                                 >
                                     <CustomSelect
                                         options={[
-                                            { value: 1, label: "1" },
-                                            { value: 2, label: "2" },
-                                            { value: 3, label: "3" },
-                                            { value: 4, label: "4" },
+                                            { value: 5, label: "5" },
+                                            { value: 10, label: "10" },
+                                            { value: 15, label: "15" },
+                                            { value: 20, label: "20" },
                                         ]}
                                         value={perPageAttribuees}
                                         onChange={(val) => {
@@ -437,10 +478,10 @@ const AdminEntite = () => {
                                 >
                                     <CustomSelect
                                         options={[
-                                            { value: 1, label: "1" },
-                                            { value: 2, label: "2" },
-                                            { value: 3, label: "3" },
-                                            { value: 4, label: "4" },
+                                            { value: 5, label: "5" },
+                                            { value: 10, label: "10" },
+                                            { value: 15, label: "15" },
+                                            { value: 20, label: "20" },
                                         ]}
                                         value={perPageGestion}
                                         onChange={(val) => {
@@ -535,8 +576,20 @@ const AdminEntite = () => {
                             <button type="button" className="cancel-btn" onClick={() => handleClose('add')}>
                                 <i className="fa-solid fa-arrow-left"/> Annuler
                             </button>
-                            <button type="submit" className="submit-btn" disabled={submitting}>
-                                Enregistrer <i className="fa-solid fa-arrow-right"/>
+                            <button
+                                type="submit"
+                                className="submit-btn"
+                                disabled={submitting}
+                            >
+                                {submitting ? (
+                                    <>
+                                        <span className="spinner"></span>
+                                    </>
+                                ) : (
+                                    <>
+                                        Enregistrer <i className="fa-solid fa-arrow-right" />
+                                    </>
+                                )}
                             </button>
                         </div>
                     </form>
@@ -559,8 +612,20 @@ const AdminEntite = () => {
                                 <button type="button" className="cancel-btn" onClick={() => handleClose('edit')}>
                                     <i className="fa-solid fa-arrow-left"/> Annuler
                                 </button>
-                                <button type="submit" className="submit-btn" disabled={submitting}>
-                                    Enregistrer <i className="fa-solid fa-arrow-right"/>
+                                <button
+                                    type="submit"
+                                    className="submit-btn"
+                                    disabled={submitting}
+                                >
+                                    {submitting ? (
+                                        <>
+                                            <span className="spinner"></span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            Enregistrer <i className="fa-solid fa-arrow-right" />
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         </form>
@@ -582,8 +647,20 @@ const AdminEntite = () => {
                             <button type="button" className="cancel-btn" onClick={() => handleClose('delete')}>
                                 <i className="fa-solid fa-arrow-left"/> Annuler
                             </button>
-                            <button className="submit-btn" onClick={handleDelete}>
-                                Confirmer <i className="fa-solid fa-arrow-right"/>
+                            <button
+                                className="submit-btn"
+                                onClick={handleDelete}
+                                disabled={submitting}
+                            >
+                                {submitting ? (
+                                    <>
+                                        <span className="spinner"></span>
+                                    </>
+                                ) : (
+                                    <>
+                                        Confirmer <i className="fa-solid fa-arrow-right" />
+                                    </>
+                                )}
                             </button>
                         </div>
                     </div>

@@ -40,6 +40,17 @@ public class DemandeController {
         return ResponseEntity.ok(demandeService.getDemandesByUser(userId));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Demande> updateDemande(
+            @PathVariable Long id,
+            @RequestBody DemandeRequest request
+    ) {
+
+        return ResponseEntity.ok(
+                demandeService.updateDemande(id, request)
+        );
+    }
+
     @PutMapping("/{id}/status")
     public ResponseEntity<Demande> updateStatus(
             @PathVariable Long id,

@@ -15,7 +15,6 @@ const DemandeurDemande = () => {
     const [showValidationModal, setShowValidationModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [closing, setClosing] = useState(false);
-    const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [entites, setEntites] = useState([]);
@@ -1254,9 +1253,9 @@ const DemandeurDemande = () => {
             {showLoadingModal && (
                 <div className="modal-overlay">
                     <div className="modal-content">
-                        <div style={{ textAlign: "center", padding: "30px" }}>
-                            <div className="spinner"></div>
-                            <p>Envoi de votre demande...</p>
+                        <div className="circle-loader-container">
+                            <div className="circle-loader"></div>
+                            <p>Chargement...</p>
                         </div>
                     </div>
                 </div>

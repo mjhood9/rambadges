@@ -4,22 +4,44 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f2dcc906-fc77-4aa6-9862-c349d6e75c0d" name="Changes" comment="">
+    <list default="true" id="b2312b33-151a-4423-8319-e81ba9f66f6f" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/3af0fa2c-1514-4f04-aac9-9ff32d312510.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/3af0fa2c-1514-4f04-aac9-9ff32d312510.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/3af0fa2c-1514-4f04-aac9-9ff32d312510/storage_v2/_src_/database/demandedb.eHVcGA/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/3af0fa2c-1514-4f04-aac9-9ff32d312510/storage_v2/_src_/database/demandedb.eHVcGA/schema/public.abK9xQ.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/96cdb55e-e4b8-4c4f-8de5-88e185dc19a4.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/96cdb55e-e4b8-4c4f-8de5-88e185dc19a4.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/96cdb55e-e4b8-4c4f-8de5-88e185dc19a4/storage_v2/_src_/database/laissezpasserdb.JZf5-g/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/96cdb55e-e4b8-4c4f-8de5-88e185dc19a4/storage_v2/_src_/database/laissezpasserdb.JZf5-g/schema/public.abK9xQ.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/ee9e9af4-0474-412a-858e-61f24666bce6.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/ee9e9af4-0474-412a-858e-61f24666bce6.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/ee9e9af4-0474-412a-858e-61f24666bce6/storage_v2/_src_/database/userdb.iTErzg/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/ee9e9af4-0474-412a-858e-61f24666bce6/storage_v2/_src_/database/userdb.iTErzg/schema/public.abK9xQ.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/db-forest-config.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/db-forest-config.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/services/DemandeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/services/DemandeService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/web/controllers/DemandeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/web/controllers/DemandeController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/user-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/user-service/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/UserServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/UserServiceApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/dao/dtos/AuthResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/dao/dtos/AuthResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/dao/dtos/SignUpRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/dao/dtos/SignUpRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/dao/entities/Users.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/dao/entities/Users.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/services/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/services/AuthService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/services/JwtService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/services/UserDetailsServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/services/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/services/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/web/config/JwtAuthFilter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/web/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/web/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/user-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/user-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/api/authApi.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/authApi.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/assets/styles/main.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/assets/styles/main.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/AdminDemande.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/AdminDemande.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/AdminDemandeDetails.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/AdminDemandeDetails.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/AdminLaissezPasser.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/AdminLaissezPasser.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/CorrespondantDemande.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/CorrespondantDemande.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/CorrespondantLaissezPasser.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/CorrespondantLaissezPasser.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/CorrespondantValidation.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/CorrespondantValidation.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/hooks/useAuth.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/hooks/useAuth.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/AdminDashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/AdminDashboard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/AdminEntite.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/AdminEntite.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/DemandeurDashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DemandeurDashboard.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/DemandeurDemande.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DemandeurDemande.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/DemandeurDetails.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DemandeurDetails.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/DirecteurDemande.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DirecteurDemande.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/DirecteurLaissezPasser.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DirecteurLaissezPasser.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/DirecteurValidation.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DirecteurValidation.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/routes/AppRoutes.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/routes/AppRoutes.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,11 +51,9 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Enum" />
-        <option value="Interface" />
         <option value="Class" />
-        <option value="JSX File" />
         <option value="JavaScript File" />
+        <option value="JSX File" />
       </list>
     </option>
   </component>
@@ -44,7 +64,7 @@
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 0
 }</component>
-  <component name="ProjectId" id="3CJY5pCyxxdMDzuE1mRTQBl1gY1" />
+  <component name="ProjectId" id="3DFzyV3ucgrYVYJJXXQTrbtrvqQ" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -70,7 +90,6 @@
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/ProjetPFE/RAM Badges/backend/laissez-passer-service/src/main/java/com/backend/laissezpasserservice&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -83,19 +102,6 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="D:\ProjetPFE\RAM Badges\backend\laissez-passer-service\src\main\java\com\backend\laissezpasserservice" />
-      <recent name="D:\ProjetPFE\RAM Badges\backend\demande-service\src\main\resources" />
-      <recent name="D:\ProjetPFE\RAM Badges\backend\demande-service\src\main\java\com\backend\demandeservice" />
-    </key>
-    <key name="CopyClassDialog.RECENTS_KEY">
-      <recent name="com.backend.laissezpasserservice.web.config" />
-      <recent name="com.backend.demandeservice.services" />
-      <recent name="com.backend.demandeservice.web.config" />
-      <recent name="com.backend.userservice.web.config" />
-    </key>
-  </component>
   <component name="RunDashboard">
     <option name="configurationTypes">
       <set>
@@ -160,22 +166,19 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="f2dcc906-fc77-4aa6-9862-c349d6e75c0d" name="Changes" comment="" />
-      <created>1776104960031</created>
+      <changelist id="b2312b33-151a-4423-8319-e81ba9f66f6f" name="Changes" comment="" />
+      <created>1777892861654</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1776104960031</updated>
-      <workItem from="1776104961347" duration="211000" />
-      <workItem from="1776105208832" duration="863000" />
-      <workItem from="1776106101569" duration="543000" />
-      <workItem from="1776106658217" duration="2924000" />
-      <workItem from="1776151120475" duration="25849000" />
-      <workItem from="1776191507449" duration="1459000" />
-      <workItem from="1776271466530" duration="10050000" />
-      <workItem from="1776409275886" duration="4525000" />
-      <workItem from="1776416338753" duration="17344000" />
-      <workItem from="1776755328189" duration="16889000" />
-      <workItem from="1777014679752" duration="18623000" />
+      <updated>1777892861654</updated>
+      <workItem from="1777892865239" duration="13535000" />
+      <workItem from="1777969150318" duration="10209000" />
+      <workItem from="1778225815240" duration="660000" />
+      <workItem from="1778596909720" duration="1826000" />
+      <workItem from="1778695237390" duration="3330000" />
+      <workItem from="1778830355553" duration="2326000" />
+      <workItem from="1778833438002" duration="655000" />
+      <workItem from="1779174611041" duration="296000" />
     </task>
     <servers />
   </component>
