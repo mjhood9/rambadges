@@ -18,6 +18,9 @@ public class LaissezPasser {
     @Column(name = "demande_id")
     private Long demandeId;
 
+    @Column(name = "user_id")
+    private String userId;
+
     @Column(name = "num_laissez_passer", unique = true)
     private String numLaissezPasser;
 
@@ -49,6 +52,11 @@ public class LaissezPasser {
     @Enumerated(EnumType.STRING)
     @Column(name = "statut")
     private LaissezPasserStatut statut;
+
+    private LocalDate lastReminderSent;
+
+    @Column(name = "expired_notified")
+    private boolean expiredNotified = false;
 
     public Long getId() {
         return id;
@@ -136,5 +144,29 @@ public class LaissezPasser {
 
     public void setStatut(LaissezPasserStatut statut) {
         this.statut = statut;
+    }
+
+    public LocalDate getLastReminderSent() {
+        return lastReminderSent;
+    }
+
+    public void setLastReminderSent(LocalDate lastReminderSent) {
+        this.lastReminderSent = lastReminderSent;
+    }
+
+    public boolean isExpiredNotified() {
+        return expiredNotified;
+    }
+
+    public void setExpiredNotified(boolean expiredNotified) {
+        this.expiredNotified = expiredNotified;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

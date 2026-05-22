@@ -7,6 +7,7 @@ public class UpdateStatusRequest {
     private DemandeStatus statusDirecteur;
     private String signatureDirecteur;
     private DemandeStatus statusCorrespondant;
+    private Boolean clearStatusCorrespondant;
     private String signatureCorrespondant;
     private Long userId;
 
@@ -57,5 +58,13 @@ public class UpdateStatusRequest {
 
     public void setSignatureCorrespondant(String signatureCorrespondant) {
         this.signatureCorrespondant = signatureCorrespondant;
+    }
+
+    public Boolean getClearStatusCorrespondant() {
+        return clearStatusCorrespondant;
+    }
+
+    public void setClearStatusCorrespondant(Boolean clearStatusCorrespondant) {
+        this.clearStatusCorrespondant = clearStatusCorrespondant;
     }
 }

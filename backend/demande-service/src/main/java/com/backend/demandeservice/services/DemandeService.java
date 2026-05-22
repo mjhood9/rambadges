@@ -229,7 +229,10 @@ public class DemandeService {
                 demande.setSignatureDirecteur(request.getSignatureDirecteur());
             }
 
-            if (request.getStatusCorrespondant() != null) {
+            if (Boolean.TRUE.equals(request.getClearStatusCorrespondant())) {
+                demande.setStatusCorrespondant(null);
+            }
+            else if (request.getStatusCorrespondant() != null) {
                 demande.setStatusCorrespondant(request.getStatusCorrespondant());
             }
 

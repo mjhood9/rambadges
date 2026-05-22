@@ -21,6 +21,8 @@ const AdminEntite = () => {
     const [showModal, setShowModal] = useState(false);
     const [newEntiteName, setNewEntiteName] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const [updating, setUpdating] = useState(false);
+    const [deleting, setDeleting] = useState(false);
     const [error, setError] = useState(null);
 
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -197,7 +199,7 @@ const AdminEntite = () => {
 
         if (!editingEntite) return;
 
-        setSubmitting(true);
+        setUpdating(true);
         setError(null);
 
         try {
@@ -223,7 +225,7 @@ const AdminEntite = () => {
             addNotification(message, 'error');
 
         } finally {
-            setSubmitting(false);
+            setUpdating(false);
         }
     };
 
@@ -235,6 +237,7 @@ const AdminEntite = () => {
         }
 
         setClosing(true);
+        setDeleting(true);
 
         setTimeout(async () => {
             try {
@@ -261,6 +264,9 @@ const AdminEntite = () => {
                 addNotification(message, 'error');
 
                 setClosing(false);
+            }
+            finally{
+                setDeleting(false);
             }
         }, 400);
     };
@@ -615,9 +621,9 @@ const AdminEntite = () => {
                                 <button
                                     type="submit"
                                     className="submit-btn"
-                                    disabled={submitting}
+                                    disabled={updating}
                                 >
-                                    {submitting ? (
+                                    {updating ? (
                                         <>
                                             <span className="spinner"></span>
                                         </>
@@ -650,9 +656,9 @@ const AdminEntite = () => {
                             <button
                                 className="submit-btn"
                                 onClick={handleDelete}
-                                disabled={submitting}
+                                disabled={deleting}
                             >
-                                {submitting ? (
+                                {deleting ? (
                                     <>
                                         <span className="spinner"></span>
                                     </>

@@ -7,6 +7,7 @@ import java.time.LocalDate;
 public class LaissezPasserRequestDTO {
 
     private Long demandeId;
+    private String userId;
     private String numLaissezPasser;
 
     private LocalDate dateDepotOnda;
@@ -100,5 +101,13 @@ public class LaissezPasserRequestDTO {
 
     public void setStatut(LaissezPasserStatut statut) {
         this.statut = statut;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

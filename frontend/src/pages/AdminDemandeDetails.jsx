@@ -51,7 +51,7 @@ const AdminDemandeDetails = () => {
     };
 
     useEffect(() => {
-        const fetchDemande = async () => {
+        const fetchData = async () => {
             try {
                 setLoading(true);
 
@@ -71,7 +71,6 @@ const AdminDemandeDetails = () => {
                     }),
 
                     axios.get(`http://localhost:8080/api/laissezpasser`, {
-                        params: { demandeId: id },
                         headers: { Authorization: `Bearer ${token}` }
                     }),
                 ]);
@@ -80,14 +79,16 @@ const AdminDemandeDetails = () => {
                 setCommentaires(resComments.data);
                 setUsers(resUsers.data);
 
-// ✅ FIX HERE
-                const lpData = resLaissezPasser.data;
+                const lpData = Array.isArray(resLaissezPasser.data)
+                    ? resLaissezPasser.data
+                    : [resLaissezPasser.data];
 
-                setLaissezPasser(Array.isArray(lpData) ? lpData[0] : lpData || null);
+                // 🔥 STRICT FILTER BY DEMANDE ID
+                const filteredLP = lpData.filter(lp => lp.demandeId === Number(id));
 
-                setDemande(resDemande.data);
-                setCommentaires(resComments.data);
-                setUsers(resUsers.data);
+                const finalLP = filteredLP.length > 0 ? filteredLP[0] : null;
+
+                setLaissezPasser(finalLP);
 
             } catch (err) {
                 console.error(err);
@@ -97,7 +98,7 @@ const AdminDemandeDetails = () => {
             }
         };
 
-        fetchDemande();
+        fetchData();
     }, [id]);
 
     const usersMap = users.reduce((acc, user) => {

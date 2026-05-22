@@ -8,6 +8,7 @@ import java.time.LocalDate;
 public class LaissezPasserUpdateRequest {
 
     private String numLaissezPasser;
+    private String userId;
     private LocalDate dateDepotOnda;
     private LocalDate dateDelivrance;
     private LocalDate dateExpiration;
@@ -90,6 +91,14 @@ public class LaissezPasserUpdateRequest {
 
     public void setNumLaissezPasser(String numLaissezPasser) {
         this.numLaissezPasser = numLaissezPasser;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     // getters & setters

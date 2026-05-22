@@ -24,6 +24,12 @@ const DemandeurDemande = () => {
         firstName: "",
         lastName: ""
     });
+    const [decodedUser, setDecodedUser] = useState({
+        email: "",
+        userId: "",
+        firstName: "",
+        lastName: ""
+    });
 
     const navigate = useNavigate();
 
@@ -73,47 +79,37 @@ const DemandeurDemande = () => {
     };
 
     useEffect(() => {
-        const fetchCurrentUser = async () => {
+        const fetchCurrentUser = () => {
             try {
                 const token = localStorage.getItem("token");
                 if (!token) return;
 
                 const decoded = jwtDecode(token);
 
-                // ✅ directly use userId from JWT
-                const userId = decoded.userId || decoded.sub;
+                const user = {
+                    email: decoded.email,
+                    userId: decoded.sub || decoded.userId,
+                    firstName: decoded.given_name || "",
+                    lastName: decoded.family_name || ""
+                };
 
-                if (!userId) {
-                    console.error("No userId found in token");
-                    return;
-                }
-
-                const response = await fetch(`http://localhost:8080/api/users/${userId}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json"
-                    }
-                });
-
-                if (!response.ok) throw new Error("Failed to fetch user");
-
-                const user = await response.json();
+                setDecodedUser(user);
 
                 setCurrentUser({
-                    id: user.id,
+                    id: user.userId,
                     firstName: user.firstName,
                     lastName: user.lastName
                 });
 
                 setFormData((prev) => ({
                     ...prev,
-                    userId: user.id,
+                    userId: user.userId,
                     firstName: user.firstName,
                     lastName: user.lastName
                 }));
 
             } catch (error) {
-                console.error("Error loading current user:", error);
+                console.error("Error decoding token:", error);
             }
         };
 
@@ -139,6 +135,19 @@ const DemandeurDemande = () => {
 
         fetchEntites();
     }, []);
+
+    const fetchUsers = async () => {
+        const token = localStorage.getItem("token");
+
+        const res = await fetch("http://localhost:8080/api/users", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        return await res.json();
+    };
 
     const steps = [
         { number: 1, label: 'Informations personnelles' },
@@ -255,6 +264,16 @@ const DemandeurDemande = () => {
             setLoading(true);
             setShowLoadingModal(true);
 
+            const users = await fetchUsers();
+
+            const matchedUser = users.find(
+                u => u.email === decodedUser.email
+            );
+
+            if (!matchedUser) {
+                throw new Error("Utilisateur introuvable dans la base de données");
+            }
+
             const token = localStorage.getItem("token");
 
             const cnieFileString = formData.cnieFile
@@ -267,7 +286,7 @@ const DemandeurDemande = () => {
 
             const payload = {
                 ...formData,
-                userId: currentUser.id,
+                userId: matchedUser.id,
                 cnieFile: cnieFileString,
                 photoFile: photoFileString
             };

@@ -15,6 +15,27 @@ const DemandeurDetails = () => {
     const [error, setError] = useState("");
     const navigate = useNavigate();
 
+    const isRejected =
+        demande?.statusDirecteur === "REJETEE" ||
+        demande?.statusCorrespondant === "REJETEE";
+
+    const isExpiringSoon = (() => {
+        if (!laissezPasser?.dateExpiration) return false;
+
+        const today = new Date();
+        const expiration = new Date(laissezPasser.dateExpiration);
+
+        const diffTime = expiration.getTime() - today.getTime();
+        const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+        return diffDays <= 30 && diffDays > 0;
+    })();
+
+    const isExpired =
+        laissezPasser?.statut === "EXPIRE" ||
+        (laissezPasser?.dateExpiration &&
+            new Date(laissezPasser.dateExpiration) < new Date());
+
     const downloadFile = async (url, filename) => {
         try {
             const response = await fetch(url);
@@ -68,8 +89,8 @@ const DemandeurDetails = () => {
                     axios.get(`http://localhost:8080/api/users`, {
                         headers: { Authorization: `Bearer ${token}` },
                     }),
+
                     axios.get(`http://localhost:8080/api/laissezpasser`, {
-                        params: { demandeId: id },
                         headers: { Authorization: `Bearer ${token}` }
                     }),
                 ]);
@@ -77,9 +98,17 @@ const DemandeurDetails = () => {
                 setDemande(resDemande.data);
                 setCommentaires(resComments.data);
                 setUsers(resUsers.data);
-                const lpData = resLaissezPasser.data;
 
-                setLaissezPasser(Array.isArray(lpData) ? lpData[0] : lpData || null);
+                const lpData = Array.isArray(resLaissezPasser.data)
+                    ? resLaissezPasser.data
+                    : [resLaissezPasser.data];
+
+                // 🔥 STRICT FILTER BY DEMANDE ID
+                const filteredLP = lpData.filter(lp => lp.demandeId === Number(id));
+
+                const finalLP = filteredLP.length > 0 ? filteredLP[0] : null;
+
+                setLaissezPasser(finalLP);
 
             } catch (err) {
                 console.error(err);
@@ -421,6 +450,56 @@ const DemandeurDetails = () => {
                                 )}
 
                             </div>
+                            <div
+                                style={{
+                                    width: "100%",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        gap: "12px",
+                                    }}
+                                >
+                                    {isRejected && (
+                                        <button
+                                            style={{
+                                                padding: "10px 16px",
+                                                borderRadius: "8px",
+                                                border: "none",
+                                                backgroundColor: "#fff3f3",
+                                                color: "#d11a2a",
+                                                cursor: "pointer",
+                                                fontWeight: "600",
+                                                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                            }}
+                                            onClick={() => navigate(`/demande/edit/${demande.id}`)}
+                                        >
+                                            Modifier la demande
+                                        </button>
+                                    )}
+                                    {(isExpired || isExpiringSoon) && (
+                                        <button
+                                            style={{
+                                                padding: "10px 16px",
+                                                borderRadius: "8px",
+                                                border: "none",
+                                                backgroundColor: "#e6f0ff",
+                                                color: "#0057d9",
+                                                cursor: "pointer",
+                                                fontWeight: "600",
+                                                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                                            }}
+                                            onClick={() => navigate(`/demande/new?from=${demande.id}`)}
+                                        >
+                                            Créer une nouvelle demande
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>

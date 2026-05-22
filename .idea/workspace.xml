@@ -5,43 +5,39 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b2312b33-151a-4423-8319-e81ba9f66f6f" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/3af0fa2c-1514-4f04-aac9-9ff32d312510.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/3af0fa2c-1514-4f04-aac9-9ff32d312510.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/3af0fa2c-1514-4f04-aac9-9ff32d312510/storage_v2/_src_/database/demandedb.eHVcGA/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/3af0fa2c-1514-4f04-aac9-9ff32d312510/storage_v2/_src_/database/demandedb.eHVcGA/schema/public.abK9xQ.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/3e7f0923-b50e-4928-9113-9c5182008d4b.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/3e7f0923-b50e-4928-9113-9c5182008d4b.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/3e7f0923-b50e-4928-9113-9c5182008d4b/storage_v2/_src_/database/postgres.edMnLQ/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/3e7f0923-b50e-4928-9113-9c5182008d4b/storage_v2/_src_/database/postgres.edMnLQ/schema/public.abK9xQ.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/3e7f0923-b50e-4928-9113-9c5182008d4b/storage_v2/_src_/database/userdb.iTErzg/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/3e7f0923-b50e-4928-9113-9c5182008d4b/storage_v2/_src_/database/userdb.iTErzg/schema/public.abK9xQ.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/96cdb55e-e4b8-4c4f-8de5-88e185dc19a4.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/96cdb55e-e4b8-4c4f-8de5-88e185dc19a4.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/96cdb55e-e4b8-4c4f-8de5-88e185dc19a4/storage_v2/_src_/database/laissezpasserdb.JZf5-g/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/96cdb55e-e4b8-4c4f-8de5-88e185dc19a4/storage_v2/_src_/database/laissezpasserdb.JZf5-g/schema/public.abK9xQ.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/ee9e9af4-0474-412a-858e-61f24666bce6.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/ee9e9af4-0474-412a-858e-61f24666bce6.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/ee9e9af4-0474-412a-858e-61f24666bce6/storage_v2/_src_/database/userdb.iTErzg/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/ee9e9af4-0474-412a-858e-61f24666bce6/storage_v2/_src_/database/userdb.iTErzg/schema/public.abK9xQ.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/db-forest-config.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/db-forest-config.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/f94863cb-2112-4700-beae-f194d31ff9d0.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/f94863cb-2112-4700-beae-f194d31ff9d0.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/f94863cb-2112-4700-beae-f194d31ff9d0/storage_v2/_src_/database/demandedb.eHVcGA/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/f94863cb-2112-4700-beae-f194d31ff9d0/storage_v2/_src_/database/demandedb.eHVcGA/schema/public.abK9xQ.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/api-gateway/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/api-gateway/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/dao/dtos/UpdateStatusRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/dao/dtos/UpdateStatusRequest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/services/DemandeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/services/DemandeService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/web/controllers/DemandeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/web/controllers/DemandeController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/user-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/user-service/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/UserServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/UserServiceApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/dao/dtos/AuthResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/dao/dtos/AuthResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/dao/dtos/SignUpRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/dao/dtos/SignUpRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/dao/entities/Users.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/dao/entities/Users.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/services/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/services/AuthService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/services/JwtService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/services/UserDetailsServiceImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/services/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/services/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/web/config/JwtAuthFilter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/web/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/user-service/src/main/java/com/backend/userservice/web/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/user-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/user-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/laissez-passer-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/laissez-passer-service/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/laissez-passer-service/src/main/java/com/backend/laissezpasserservice/LaissezPasserServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/laissez-passer-service/src/main/java/com/backend/laissezpasserservice/LaissezPasserServiceApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/laissez-passer-service/src/main/java/com/backend/laissezpasserservice/dao/dtos/LaissezPasserRequestDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/laissez-passer-service/src/main/java/com/backend/laissezpasserservice/dao/dtos/LaissezPasserRequestDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/laissez-passer-service/src/main/java/com/backend/laissezpasserservice/dao/dtos/LaissezPasserUpdateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/laissez-passer-service/src/main/java/com/backend/laissezpasserservice/dao/dtos/LaissezPasserUpdateRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/laissez-passer-service/src/main/java/com/backend/laissezpasserservice/dao/entities/LaissezPasser.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/laissez-passer-service/src/main/java/com/backend/laissezpasserservice/dao/entities/LaissezPasser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/laissez-passer-service/src/main/java/com/backend/laissezpasserservice/services/LaissezPasserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/laissez-passer-service/src/main/java/com/backend/laissezpasserservice/services/LaissezPasserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/laissez-passer-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/laissez-passer-service/src/main/resources/application.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/api/authApi.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/authApi.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/assets/styles/main.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/assets/styles/main.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/hooks/useAuth.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/hooks/useAuth.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/AdminDashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/AdminDashboard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/AdminDemande.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/AdminDemande.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/AdminDemandeDetails.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/AdminDemandeDetails.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/AdminEntite.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/AdminEntite.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/CorrespondantValidation.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/CorrespondantValidation.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/DemandeurDashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DemandeurDashboard.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/DemandeurDemande.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DemandeurDemande.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/DirecteurDemande.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DirecteurDemande.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/DirecteurLaissezPasser.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DirecteurLaissezPasser.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/DemandeurDetails.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DemandeurDetails.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/DirecteurValidation.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DirecteurValidation.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/routes/AppRoutes.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/routes/AppRoutes.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,9 +47,10 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Class" />
-        <option value="JavaScript File" />
         <option value="JSX File" />
+        <option value="JavaScript File" />
+        <option value="Interface" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -127,7 +124,7 @@
       </map>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.ApiGatewayApplication">
+  <component name="RunManager" selected="Spring Boot.LaissezPasserServiceApplication">
     <configuration name="ApiGatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="api-gateway" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.backend.apigateway.ApiGatewayApplication" />
@@ -149,9 +146,15 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="LaissezPasserServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+    <configuration name="LaissezPasserServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
       <module name="laissez-passer-service" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.backend.laissezpasserservice.LaissezPasserServiceApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.backend.laissezpasserservice.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -163,6 +166,11 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Spring Boot.LaissezPasserServiceApplication" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -178,7 +186,10 @@
       <workItem from="1778695237390" duration="3330000" />
       <workItem from="1778830355553" duration="2326000" />
       <workItem from="1778833438002" duration="655000" />
-      <workItem from="1779174611041" duration="296000" />
+      <workItem from="1779174611041" duration="22049000" />
+      <workItem from="1779202568950" duration="2944000" />
+      <workItem from="1779391203367" duration="5465000" />
+      <workItem from="1779433124296" duration="1819000" />
     </task>
     <servers />
   </component>

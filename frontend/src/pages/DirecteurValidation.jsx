@@ -5,6 +5,7 @@ import axios from "axios";
 import "../assets/styles/main.css";
 import { jwtDecode } from "jwt-decode";
 import SignaturePad from "../components/layout/SignaturePad";
+import { useNotification } from '../context/NotificationContext';
 
 const DirecteurValidation = () => {
     const { id } = useParams();
@@ -13,6 +14,8 @@ const DirecteurValidation = () => {
     const [showRefuseModal, setShowRefuseModal] = useState(false);
     const [demande, setDemande] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [acceptLoading, setAcceptLoading] = useState(false);
+    const [refuseLoading, setRefuseLoading] = useState(false);
     const [error, setError] = useState("");
     const [closing, setClosing] = useState(false);
     const [laissezPasser, setLaissezPasser] = useState(null);
@@ -27,6 +30,8 @@ const DirecteurValidation = () => {
 
     const [signatureDirecteur, setSignatureDirecteur] = useState(null);
     const [signatureError, setSignatureError] = useState("");
+
+    const { addNotification } = useNotification();
 
     const handleClose = (type) => {
         setClosing(true);
@@ -78,7 +83,7 @@ const DirecteurValidation = () => {
     };
 
     useEffect(() => {
-        const fetchDemande = async () => {
+        const fetchData = async () => {
             try {
                 setLoading(true);
 
@@ -98,7 +103,6 @@ const DirecteurValidation = () => {
                     }),
 
                     axios.get(`http://localhost:8080/api/laissezpasser`, {
-                        params: { demandeId: id },
                         headers: { Authorization: `Bearer ${token}` }
                     }),
                 ]);
@@ -107,10 +111,16 @@ const DirecteurValidation = () => {
                 setCommentaires(resComments.data);
                 setUsers(resUsers.data);
 
-                // ✅ laissez-passer (may be null)
-                const lpData = resLaissezPasser.data;
+                const lpData = Array.isArray(resLaissezPasser.data)
+                    ? resLaissezPasser.data
+                    : [resLaissezPasser.data];
 
-                setLaissezPasser(Array.isArray(lpData) ? lpData[0] : lpData || null);
+                // 🔥 STRICT FILTER BY DEMANDE ID
+                const filteredLP = lpData.filter(lp => lp.demandeId === Number(id));
+
+                const finalLP = filteredLP.length > 0 ? filteredLP[0] : null;
+
+                setLaissezPasser(finalLP);
 
             } catch (err) {
                 console.error(err);
@@ -120,16 +130,12 @@ const DirecteurValidation = () => {
             }
         };
 
-        fetchDemande();
+        fetchData();
     }, [id]);
-
-    const usersMap = users.reduce((acc, user) => {
-        acc[user.id] = user;
-        return acc;
-    }, {});
 
     const handleAccept = async () => {
         try {
+            setAcceptLoading(true);
             await axios.put(
                 `http://localhost:8080/api/demandes/${id}/status`,
                 {
@@ -145,11 +151,15 @@ const DirecteurValidation = () => {
                     },
                 }
             );
+            addNotification('Demande acceptée avec succès 🎉', 'success');
 
             setShowAcceptModal(false);
             navigate("/directeur/demandes");
         } catch (err) {
             console.error(err);
+            addNotification("Erreur lors de l'acceptation", 'error');
+        }finally {
+            setAcceptLoading(false);
         }
     };
 
@@ -157,9 +167,26 @@ const DirecteurValidation = () => {
         e.preventDefault();
 
         try {
-            const token = localStorage.getItem("token");
+            setRefuseLoading(true);
 
-            // 1. update status
+            const token = localStorage.getItem("token");
+            const decoded = jwtDecode(token);
+            const email = decoded?.email || decoded?.preferred_username;
+
+            // 1. fetch users
+            const resUsers = await axios.get("http://localhost:8080/api/users", {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            // 2. find current user
+            const currentUser = resUsers.data.find(u => u.email === email);
+            const userId = currentUser?.id;
+
+            if (!userId) {
+                throw new Error("User not found");
+            }
+
+            // 3. update demande
             await axios.put(
                 `http://localhost:8080/api/demandes/${id}/status`,
                 {
@@ -169,32 +196,32 @@ const DirecteurValidation = () => {
                     status: "REJETEE"
                 },
                 {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
+                    headers: { Authorization: `Bearer ${token}` }
                 }
             );
 
-            // 2. save commentaire separately
+            // 4. create comment
             await axios.post(
                 `http://localhost:8080/api/commentaires`,
                 {
                     content: commentaireRefus,
                     userId: userId,
-                    demandeId: id
+                    demandeId: Number(id)
                 },
                 {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
+                    headers: { Authorization: `Bearer ${token}` }
                 }
             );
 
+            addNotification("Demande refusée avec succès", "success");
             setShowRefuseModal(false);
             navigate("/directeur/demandes");
 
         } catch (err) {
             console.error(err);
+            addNotification("Erreur lors du refus", "error");
+        } finally {
+            setRefuseLoading(false);
         }
     };
 
@@ -402,7 +429,7 @@ const DirecteurValidation = () => {
                                     <div className="summary-step1">
                                         <div className="summary-box">
                                             {commentaires.map((c, i) => {
-                                                const user = usersMap?.[c.userId];
+                                                const user = users?.[c.userId];
 
                                                 return (
                                                     <p key={i}>
@@ -551,8 +578,20 @@ const DirecteurValidation = () => {
                             <button type="button" className="cancel-btn" onClick={() => handleClose("accept")}>
                                 <i className="fa-solid fa-arrow-left"/> Annuler
                             </button>
-                            <button className="submit-btn" onClick={handleAccept}>
-                                Confirmer <i className="fa-solid fa-arrow-right"/>
+                            <button
+                                className="submit-btn"
+                                onClick={handleAccept}
+                                disabled={acceptLoading}
+                            >
+                                {acceptLoading ? (
+                                    <>
+                                        <span className="btn-spinner"></span>
+                                    </>
+                                ) : (
+                                    <>
+                                        Confirmer <i className="fa-solid fa-arrow-right" />
+                                    </>
+                                )}
                             </button>
                         </div>
                     </div>
@@ -592,8 +631,20 @@ const DirecteurValidation = () => {
                                     <i className="fa-solid fa-arrow-left" /> Annuler
                                 </button>
 
-                                <button type="submit" className="submit-btn">
-                                    Confirmer <i className="fa-solid fa-arrow-right" />
+                                <button
+                                    className="submit-btn"
+                                    onClick={handleRefuse}
+                                    disabled={refuseLoading}
+                                >
+                                    {refuseLoading ? (
+                                        <>
+                                            <span className="btn-spinner"></span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            Confirmer <i className="fa-solid fa-arrow-right" />
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         </form>

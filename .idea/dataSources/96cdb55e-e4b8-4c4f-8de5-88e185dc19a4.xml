@@ -3,17 +3,9 @@
   <database-model serializer="dbm" dbms="POSTGRES" family-id="POSTGRES" format-version="4.55">
     <root id="1">
       <DateStyle>mdy</DateStyle>
-      <Grants>1||-9223372036854775808|c|G
-1||10|c|G
-1||10|C|G
-1||10|T|G
-4||-9223372036854775808|c|G
-4||10|c|G
-4||10|C|G
-4||10|T|G</Grants>
-      <IntrospectionStateNumber>1158</IntrospectionStateNumber>
+      <IntrospectionStateNumber>1299</IntrospectionStateNumber>
       <ServerVersion>18.3</ServerVersion>
-      <StartupTime>1778833390</StartupTime>
+      <StartupTime>1779391166</StartupTime>
       <TimeZones>true ACDT
 true ACSST
 false ACST
@@ -813,7 +805,7 @@ false Zulu
 14813||10|C|G
 14813||-9223372036854775808|U|G
 14813||10|U|G</Grants>
-      <IntrospectionStateNumber>1158</IntrospectionStateNumber>
+      <IntrospectionStateNumber>1299</IntrospectionStateNumber>
       <ObjectId>16627</ObjectId>
       <OwnerName>postgres</OwnerName>
     </database>
@@ -4338,11 +4330,11 @@ false Zulu
       <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
       <Comment>standard public schema</Comment>
       <Current>1</Current>
-      <LastIntrospectionL1Xid>1158</LastIntrospectionL1Xid>
-      <LastIntrospectionL2Xid>1158</LastIntrospectionL2Xid>
-      <LastIntrospectionL3Xid>1158</LastIntrospectionL3Xid>
+      <LastIntrospectionL1Xid>1299</LastIntrospectionL1Xid>
+      <LastIntrospectionL2Xid>1299</LastIntrospectionL2Xid>
+      <LastIntrospectionL3Xid>1299</LastIntrospectionL3Xid>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
-      <LastIntrospectionLocalTimestamp>2026-05-19.07:14:55</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2026-05-22.07:06:58</LastIntrospectionLocalTimestamp>
       <LastIntrospectionVersion>260210</LastIntrospectionVersion>
       <ObjectId>2200</ObjectId>
       <StateNumber>546</StateNumber>
@@ -4357,20 +4349,36 @@ false Zulu
       <StoredType>bigint|0s</StoredType>
       <OwnerName>postgres</OwnerName>
     </sequence>
-    <table id="276" parent="274" name="laissez_passer">
+    <sequence id="276" parent="274" name="laissezpassernotification_id_seq">
+      <DetailsLevel>2</DetailsLevel>
+      <ObjectId>16965</ObjectId>
+      <SequenceIdentity>1</SequenceIdentity>
+      <StartValue>1</StartValue>
+      <StateNumber>1258</StateNumber>
+      <StoredType>bigint|0s</StoredType>
+      <OwnerName>postgres</OwnerName>
+    </sequence>
+    <table id="277" parent="274" name="laissez_passer">
       <DetailsLevel>2</DetailsLevel>
       <ObjectId>16642</ObjectId>
-      <StateNumber>986</StateNumber>
+      <StateNumber>1275</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
-    <check id="277" parent="276" name="laissez_passer_statut_check">
+    <table id="278" parent="274" name="laissezpassernotification">
+      <DetailsLevel>2</DetailsLevel>
+      <ObjectId>16966</ObjectId>
+      <StateNumber>1258</StateNumber>
+      <AccessMethodId>2</AccessMethodId>
+      <OwnerName>postgres</OwnerName>
+    </table>
+    <check id="279" parent="277" name="laissez_passer_statut_check">
       <ColNames>statut</ColNames>
       <ObjectId>16645</ObjectId>
       <Predicate>(statut)::text = ANY ((ARRAY[&apos;ACTIF&apos;::character varying, &apos;ANNULE&apos;::character varying, &apos;EXPIRE&apos;::character varying])::text[])</Predicate>
       <StateNumber>986</StateNumber>
     </check>
-    <column id="278" parent="276" name="id">
+    <column id="280" parent="277" name="id">
       <GeneratedKind>identity-by-default</GeneratedKind>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -4379,67 +4387,86 @@ false Zulu
       <SequenceId>16641</SequenceId>
       <TypeId>20</TypeId>
     </column>
-    <column id="279" parent="276" name="date_delivrance">
+    <column id="281" parent="277" name="date_delivrance">
       <Position>2</Position>
       <StateNumber>986</StateNumber>
       <StoredType>date|0s</StoredType>
       <TypeId>1082</TypeId>
     </column>
-    <column id="280" parent="276" name="date_depot_onda">
+    <column id="282" parent="277" name="date_depot_onda">
       <Position>3</Position>
       <StateNumber>986</StateNumber>
       <StoredType>date|0s</StoredType>
       <TypeId>1082</TypeId>
     </column>
-    <column id="281" parent="276" name="date_expiration">
+    <column id="283" parent="277" name="date_expiration">
       <Position>4</Position>
       <StateNumber>986</StateNumber>
       <StoredType>date|0s</StoredType>
       <TypeId>1082</TypeId>
     </column>
-    <column id="282" parent="276" name="demande_id">
+    <column id="284" parent="277" name="demande_id">
       <Position>5</Position>
       <StateNumber>986</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="283" parent="276" name="image_public_id">
+    <column id="285" parent="277" name="image_public_id">
       <Position>6</Position>
       <StateNumber>986</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="284" parent="276" name="image_url">
+    <column id="286" parent="277" name="image_url">
       <Position>7</Position>
       <StateNumber>986</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="285" parent="276" name="num_laissez_passer">
+    <column id="287" parent="277" name="num_laissez_passer">
       <Position>8</Position>
       <StateNumber>986</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="286" parent="276" name="quitus_paiement_public_id">
+    <column id="288" parent="277" name="quitus_paiement_public_id">
       <Position>9</Position>
       <StateNumber>986</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="287" parent="276" name="quitus_paiement_url">
+    <column id="289" parent="277" name="quitus_paiement_url">
       <Position>10</Position>
       <StateNumber>986</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="288" parent="276" name="statut">
+    <column id="290" parent="277" name="statut">
       <Position>11</Position>
       <StateNumber>986</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <index id="289" parent="276" name="laissez_passer_pkey">
+    <column id="291" parent="277" name="lastremindersent">
+      <Position>12</Position>
+      <StateNumber>1257</StateNumber>
+      <StoredType>date|0s</StoredType>
+      <TypeId>1082</TypeId>
+    </column>
+    <column id="292" parent="277" name="expired_notified">
+      <DefaultExpression>false</DefaultExpression>
+      <Position>13</Position>
+      <StateNumber>1264</StateNumber>
+      <StoredType>boolean|0s</StoredType>
+      <TypeId>16</TypeId>
+    </column>
+    <column id="293" parent="277" name="user_id">
+      <Position>14</Position>
+      <StateNumber>1275</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <index id="294" parent="277" name="laissez_passer_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16649</ObjectId>
@@ -4448,7 +4475,7 @@ false Zulu
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="290" parent="276" name="uk4ayf6ob36xcd4py0k57ykgx3f">
+    <index id="295" parent="277" name="uk4ayf6ob36xcd4py0k57ykgx3f">
       <ColNames>num_laissez_passer</ColNames>
       <ObjectId>16651</ObjectId>
       <StateNumber>988</StateNumber>
@@ -4458,17 +4485,60 @@ false Zulu
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <key id="291" parent="276" name="laissez_passer_pkey">
+    <key id="296" parent="277" name="laissez_passer_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16650</ObjectId>
       <Primary>1</Primary>
       <StateNumber>986</StateNumber>
       <UnderlyingIndexId>16649</UnderlyingIndexId>
     </key>
-    <key id="292" parent="276" name="uk4ayf6ob36xcd4py0k57ykgx3f">
+    <key id="297" parent="277" name="uk4ayf6ob36xcd4py0k57ykgx3f">
       <ObjectId>16652</ObjectId>
       <StateNumber>988</StateNumber>
       <UnderlyingIndexId>16651</UnderlyingIndexId>
+    </key>
+    <column id="298" parent="278" name="id">
+      <GeneratedKind>identity-by-default</GeneratedKind>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StateNumber>1258</StateNumber>
+      <StoredType>bigint|0s</StoredType>
+      <SequenceId>16965</SequenceId>
+      <TypeId>20</TypeId>
+    </column>
+    <column id="299" parent="278" name="laissezpasserid">
+      <Position>2</Position>
+      <StateNumber>1258</StateNumber>
+      <StoredType>bigint|0s</StoredType>
+      <TypeId>20</TypeId>
+    </column>
+    <column id="300" parent="278" name="sentat">
+      <Position>3</Position>
+      <StateNumber>1258</StateNumber>
+      <StoredType>timestamp(6)|0s</StoredType>
+      <TypeId>1114</TypeId>
+    </column>
+    <column id="301" parent="278" name="type">
+      <Position>4</Position>
+      <StateNumber>1258</StateNumber>
+      <StoredType>varchar(255)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <index id="302" parent="278" name="laissezpassernotification_pkey">
+      <ColNames>id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>16970</ObjectId>
+      <Primary>1</Primary>
+      <StateNumber>1258</StateNumber>
+      <Unique>1</Unique>
+      <AccessMethodId>403</AccessMethodId>
+    </index>
+    <key id="303" parent="278" name="laissezpassernotification_pkey">
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>16971</ObjectId>
+      <Primary>1</Primary>
+      <StateNumber>1258</StateNumber>
+      <UnderlyingIndexId>16970</UnderlyingIndexId>
     </key>
   </database-model>
 </dataSource>

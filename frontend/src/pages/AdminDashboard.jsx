@@ -30,6 +30,8 @@ const AdminDashboard = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [perPage, setPerPage] = useState(5);
     const [submitting, setSubmitting] = useState(false);
+    const [updating, setUpdating] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
     const { addNotification } = useNotification();
 
@@ -209,7 +211,7 @@ const AdminDashboard = () => {
         if (!editingUser) return;
 
         try {
-            setSubmitting(true);
+            setUpdating(true);
             const payload = {
                 firstName,
                 lastName,
@@ -253,7 +255,7 @@ const AdminDashboard = () => {
                 'error'
             );
         } finally {
-            setSubmitting(false);
+            setUpdating(false);
         }
     };
     
@@ -723,12 +725,11 @@ const AdminDashboard = () => {
                                 <button
                                     type="submit"
                                     className="submit-btn"
-                                    disabled={submitting}
+                                    disabled={updating}
                                 >
-                                    {submitting ? (
+                                    {updating ? (
                                         <>
                                             <span className="spinner"></span>
-                                            Chargement...
                                         </>
                                     ) : (
                                         <>
@@ -762,14 +763,14 @@ const AdminDashboard = () => {
                             </button>
                             <button
                                 className="submit-btn danger"
-                                disabled={submitting}
+                                disabled={deleting}
                                 onClick={async () => {
                                     if (!selectedUser) {
                                         addNotification('Aucun utilisateur sélectionné', 'warning');
                                         return;
                                     }
 
-                                    setSubmitting(true);
+                                    setDeleting(true);
 
                                     try {
                                         await axios.delete(
@@ -796,11 +797,11 @@ const AdminDashboard = () => {
                                         addNotification(message, 'error');
 
                                     } finally {
-                                        setSubmitting(false);
+                                        setDeleting(false);
                                     }
                                 }}
                             >
-                                {submitting ? (
+                                {deleting ? (
                                     <>
                                         <span className="btn-spinner"></span>
                                         Suppression...

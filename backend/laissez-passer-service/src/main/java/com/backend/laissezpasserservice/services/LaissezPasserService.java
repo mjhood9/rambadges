@@ -5,6 +5,7 @@ import com.backend.laissezpasserservice.dao.dtos.LaissezPasserRequestDTO;
 import com.backend.laissezpasserservice.dao.dtos.LaissezPasserUpdateRequest;
 import com.backend.laissezpasserservice.dao.entities.LaissezPasser;
 import com.backend.laissezpasserservice.dao.enums.LaissezPasserStatut;
+import com.backend.laissezpasserservice.dao.repositories.LaissezPasserNotificationRepository;
 import com.backend.laissezpasserservice.dao.repositories.LaissezPasserRepository;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
@@ -14,8 +15,11 @@ import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -27,21 +31,27 @@ public class LaissezPasserService {
 
     private final LaissezPasserRepository repository;
     private final DemandeClient demandeClient;
+    private final KeycloakUserService keycloakUserService;
+    private final EmailService emailService;
     private final Cloudinary cloudinary;
+    private final LaissezPasserNotificationRepository notifRepo;
 
     private final CircuitBreaker circuitBreaker;
     private final Retry retry;
 
     public LaissezPasserService(
             LaissezPasserRepository repository,
-            DemandeClient demandeClient,
-            Cloudinary cloudinary,
+            DemandeClient demandeClient, KeycloakUserService keycloakUserService, EmailService emailService,
+            Cloudinary cloudinary, LaissezPasserNotificationRepository notifRepo,
             CircuitBreakerRegistry circuitBreakerRegistry,
             RetryRegistry retryRegistry
     ) {
         this.repository = repository;
         this.demandeClient = demandeClient;
+        this.keycloakUserService = keycloakUserService;
+        this.emailService = emailService;
         this.cloudinary = cloudinary;
+        this.notifRepo = notifRepo;
 
         this.circuitBreaker = circuitBreakerRegistry.circuitBreaker("laissez-passer-service");
         this.retry = retryRegistry.retry("laissez-passer-service");
@@ -81,6 +91,7 @@ public class LaissezPasserService {
             LaissezPasser lp = new LaissezPasser();
 
             lp.setDemandeId(request.getDemandeId());
+            lp.setUserId(request.getUserId());
             lp.setNumLaissezPasser(request.getNumLaissezPasser());
             lp.setDateDepotOnda(request.getDateDepotOnda());
             lp.setDateDelivrance(request.getDateDelivrance());
@@ -162,7 +173,9 @@ public class LaissezPasserService {
         return execute(() -> {
             LaissezPasser lp = repository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Laissez-passer not found: " + id));
-
+            if (request.getUserId() != null) {
+                lp.setUserId(request.getUserId());
+            }
             if (request.getNumLaissezPasser() != null) {
                 lp.setNumLaissezPasser(request.getNumLaissezPasser());
             }
@@ -242,5 +255,207 @@ public class LaissezPasserService {
             log.error("Upload failed: {}", e.getMessage());
             throw new RuntimeException("Cloudinary upload failed");
         }
+    }
+
+    @Scheduled(cron = "0 0 * * * *")
+    public void expireLaissezPasser() {
+
+        LocalDate today = LocalDate.now();
+        List<LaissezPasser> list = repository.findAll();
+
+        boolean changed = false;
+
+        for (LaissezPasser lp : list) {
+
+            if (lp.getDateExpiration() != null
+                    && lp.getDateExpiration().isBefore(today)
+                    && lp.getStatut() != LaissezPasserStatut.EXPIRE) {
+
+                lp.setStatut(LaissezPasserStatut.EXPIRE);
+                changed = true;
+            }
+        }
+
+        if (changed) repository.saveAll(list);
+    }
+
+    // =========================
+    // WARNING JOB
+    // =========================
+    @Scheduled(cron = "0 0 9 * * *") // every day at 09:00
+    public void notifyExpiring() {
+
+        LocalDate today = LocalDate.now();
+
+        for (LaissezPasser lp : repository.findAll()) {
+
+            try {
+
+                if (lp.getDateExpiration() == null) {
+                    continue;
+                }
+
+                long daysLeft =
+                        ChronoUnit.DAYS.between(today, lp.getDateExpiration());
+
+                boolean shouldSend = false;
+
+                // send once at 30 days
+                if (daysLeft == 30) {
+                    shouldSend = true;
+                }
+
+                // send once at 15 days
+                else if (daysLeft == 15) {
+                    shouldSend = true;
+                }
+
+                // send DAILY from 7 -> 1
+                else if (daysLeft <= 7 && daysLeft >= 1) {
+                    shouldSend = true;
+                }
+
+                if (!shouldSend) {
+                    continue;
+                }
+
+                String email =
+                        keycloakUserService.getUserEmail(lp.getUserId());
+
+                String subject;
+
+                if (daysLeft == 1) {
+
+                    subject =
+                            "⚠️ Expiration du laissez-passer demain";
+
+                } else {
+
+                    subject =
+                            "📌 Rappel - Expiration dans "
+                                    + daysLeft
+                                    + " jour(s)";
+                }
+
+                emailService.sendEmail(
+                        email,
+                        subject,
+                        buildExpiringEmail(lp, daysLeft)
+                );
+
+                System.out.println(
+                        "✅ Expiring email sent to "
+                                + email
+                                + " | Days left: "
+                                + daysLeft
+                );
+
+            } catch (Exception e) {
+
+                System.err.println(
+                        "❌ Expiring notification failed for LP "
+                                + lp.getId()
+                                + ": "
+                                + e.getMessage()
+                );
+            }
+        }
+    }
+
+    @Scheduled(fixedRate = 3600000) // every 1 hour
+    public void notifyExpired() {
+
+        LocalDate today = LocalDate.now();
+
+        for (LaissezPasser lp : repository.findAll()) {
+
+            try {
+
+                if (lp.getDateExpiration() == null) {
+                    continue;
+                }
+
+                // expires immediately when date <= today
+                boolean expired =
+                        !lp.getDateExpiration().isAfter(today);
+
+                // send ONLY ONCE
+                if (expired && !lp.isExpiredNotified()) {
+
+                    String email =
+                            keycloakUserService.getUserEmail(lp.getUserId());
+
+                    emailService.sendEmail(
+                            email,
+                            "❌ Laissez-Passer expiré",
+                            buildExpiredEmail(lp)
+                    );
+
+                    // mark as already notified
+                    lp.setExpiredNotified(true);
+
+                    // update status
+                    lp.setStatut(LaissezPasserStatut.EXPIRE);
+
+                    repository.save(lp);
+
+                    System.out.println(
+                            "✅ Expired email sent to: " + email
+                    );
+                }
+
+            } catch (Exception e) {
+
+                System.err.println(
+                        "❌ Expired notification failed for LP "
+                                + lp.getId()
+                                + ": "
+                                + e.getMessage()
+                );
+            }
+        }
+    }
+
+    private String buildExpiringEmail(LaissezPasser lp, long daysLeft) {
+
+        return """
+    Bonjour,
+
+    Ceci est un rappel automatique concernant votre laissez-passer.
+
+    📄 Numéro : %s
+    📅 Date d’expiration : %s
+    ⏳ Il reste : %d jour(s)
+
+    ⚠️ Nous vous invitons à renouveler votre laissez-passer avant expiration.
+
+    Cordialement,
+    RAM Badge
+    """.formatted(
+                lp.getNumLaissezPasser(),
+                lp.getDateExpiration(),
+                daysLeft
+        );
+    }
+    private String buildExpiredEmail(LaissezPasser lp) {
+
+        return """
+    Bonjour,
+
+    Nous vous informons que votre laissez-passer a expiré.
+
+    📄 Numéro : %s
+    📅 Date d’expiration : %s
+
+    ❌ Votre laissez-passer n’est plus valide.
+
+    Merci de procéder à son renouvellement dans les plus brefs délais.
+
+    Cordialement,
+    RAM Badge
+    """.formatted(
+                lp.getNumLaissezPasser(),
+                lp.getDateExpiration()
+        );
     }
 }

@@ -32,33 +32,47 @@ const DemandeurDashboard = () => {
             try {
                 setLoading(true);
 
-                const res = await axios.get(
+                const token = localStorage.getItem("token");
+
+                // 1. Get all demandes
+                const demandesRes = await axios.get(
                     "http://localhost:8080/api/demandes",
                     {
                         headers: { Authorization: `Bearer ${token}` },
                     }
                 );
 
-                const userDemandes = res.data.filter((d) =>
+                const userDemandes = demandesRes.data.filter((d) =>
                     `${d.firstName} ${d.lastName}`.trim() === fullName
                 );
 
                 setDemandes(userDemandes);
 
-                const lpRequests = userDemandes.map((d) =>
-                    axios.get(`http://localhost:8080/api/laissezpasser`, {
-                        params: { demandeId: d.id },
-                        headers: { Authorization: `Bearer ${token}` }
-                    })
-                        .then(res => ({ id: d.id, data: res.data }))
-                        .catch(() => ({ id: d.id, data: null }))
+                // 2. Get ALL laissez-passer ONCE (IMPORTANT FIX)
+                const lpRes = await axios.get(
+                    "http://localhost:8080/api/laissezpasser",
+                    {
+                        headers: { Authorization: `Bearer ${token}` },
+                    }
                 );
 
-                const lpResults = await Promise.all(lpRequests);
+                const allLP = lpRes.data || [];
 
+                // 3. Build map: demandeId -> latest LP
                 const lpMap = {};
-                lpResults.forEach((r) => {
-                    lpMap[r.id] = Array.isArray(r.data) ? r.data[0] : r.data;
+
+                allLP.forEach((lp) => {
+                    const key = lp.demandeId;
+
+                    if (!key) return;
+
+                    // keep only latest LP per demande
+                    if (
+                        !lpMap[key] ||
+                        new Date(lp.createdAt) > new Date(lpMap[key].createdAt)
+                    ) {
+                        lpMap[key] = lp;
+                    }
                 });
 
                 setLaissezPasserMap(lpMap);
@@ -77,8 +91,7 @@ const DemandeurDashboard = () => {
             setError("Utilisateur non authentifié");
             setLoading(false);
         }
-
-    }, [token]);
+    }, [token, fullName]);
 
     if (loading)
         return (
@@ -209,42 +222,31 @@ const DemandeurDashboard = () => {
                                 {demandes.length === 0 ? (
                                     <tr>
                                         <td colSpan="6" style={{ textAlign: "center", padding: "20px", color: '#888', fontStyle: 'italic' }}>
-                                            Aucune laissez-passer trouvée
-                                        </td>
-                                    </tr>
-                                ) : Object.keys(laissezPasserMap).length === 0 ? (
-                                    <tr>
-                                        <td colSpan="6" style={{ textAlign: "center", padding: "20px", color: '#888', fontStyle: 'italic' }}>
-                                            Aucun laissez-passer trouvée
+                                            Aucune demande trouvée
                                         </td>
                                     </tr>
                                 ) : (
-                                    demandes.map((d) => {
-                                        const lp = laissezPasserMap[d.id];
-
-                                        return (
-                                            <tr key={d.id}>
-                                                <td>{lp?.numLaissezPasser || "-"}</td>
-                                                <td>{lp?.dateDepotOnda ? new Date(lp.dateDepotOnda).toLocaleDateString("fr-FR") : "-"}</td>
-                                                <td>{lp?.dateDelivrance ? new Date(lp.dateDelivrance).toLocaleDateString("fr-FR") : "-"}</td>
-                                                <td>{lp?.dateExpiration ? new Date(lp.dateExpiration).toLocaleDateString("fr-FR") : "-"}</td>
-                                                <td>{lp?.statut ? getStatusBadge(lp.statut) : "-"}</td>
-                                                <td>
-                                                    <div
-                                                        className="detail-btn"
-                                                        onClick={() => lp?.id && navigate(`/demande/laissez-passer/${lp.id}`)}
-                                                    >
-                                                        <i className="fa-regular fa-eye"></i>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })
+                                    Object.values(laissezPasserMap).map((lp) => (
+                                        <tr key={lp.id}>
+                                            <td>{lp.numLaissezPasser || "-"}</td>
+                                            <td>{lp.dateDepotOnda ? new Date(lp.dateDepotOnda).toLocaleDateString("fr-FR") : "-"}</td>
+                                            <td>{lp.dateDelivrance ? new Date(lp.dateDelivrance).toLocaleDateString("fr-FR") : "-"}</td>
+                                            <td>{lp.dateExpiration ? new Date(lp.dateExpiration).toLocaleDateString("fr-FR") : "-"}</td>
+                                            <td>{lp.statut ? getStatusBadge(lp.statut) : "-"}</td>
+                                            <td>
+                                                <div
+                                                    className="detail-btn"
+                                                    onClick={() => navigate(`/demande/laissez-passer/${lp.id}`)}
+                                                >
+                                                    <i className="fa-regular fa-eye"></i>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
                                 )}
                                 </tbody>
                             </table>
                         )}
-
                     </div>
                 </div>
             </div>

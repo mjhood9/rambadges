@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Helmet } from "react-helmet-async";
 import axios from 'axios';
+import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import "../assets/styles/main.css";
 import CustomSelect from "../components/layout/CustomSelect";
+import { useNotification } from '../context/NotificationContext';
 
 const AdminDemande = () => {
     const navigate = useNavigate();
@@ -33,11 +35,15 @@ const AdminDemande = () => {
     const [demandeStatusCorrespondantFilter, setDemandeStatusCorrespondantFilter] = useState("");
 
     const [loading, setLoading] = useState(false);
+    const [loadingOnda, setLoadingOnda] = useState(false);
+    const [loadingDelivrance, setLoadingDelivrance] = useState(false);
     const [error, setError] = useState(null);
 
     const [showOndaModal, setShowOndaModal] = useState(false);
     const [showDelivranceModal, setShowDelivranceModal] = useState(false);
     const [closing, setClosing] = useState(false);
+
+    const { addNotification } = useNotification();
 
     const fileToBase64 = (file) => {
         return new Promise((resolve, reject) => {
@@ -72,11 +78,14 @@ const AdminDemande = () => {
         try {
             setLoading(true);
 
-            const [demandesRes, entitesRes] = await Promise.all([
+            const [demandesRes, entitesRes, resLaissezPasser] = await Promise.all([
                 axios.get("http://localhost:8080/api/demandes", {
                     headers: { Authorization: `Bearer ${token}` }
                 }),
                 axios.get("http://localhost:8080/api/entites", {
+                    headers: { Authorization: `Bearer ${token}` }
+                }),
+                axios.get("http://localhost:8080/api/laissezpasser", {
                     headers: { Authorization: `Bearer ${token}` }
                 })
             ]);
@@ -86,26 +95,18 @@ const AdminDemande = () => {
             setDemandes(demandesData);
             setEntites(entitesRes.data);
 
-            // ✅ NEW: use /laissezpasser?demandeId=
-            const lpRequests = demandesData.map((d) =>
-                axios
-                    .get(`http://localhost:8080/api/laissezpasser`, {
-                        params: { demandeId: d.id },
-                        headers: { Authorization: `Bearer ${token}` }
-                    })
-                    .then((res) => ({ id: d.id, data: res.data }))
-                    .catch(() => ({ id: d.id, data: null }))
-            );
+            // 🔥 NORMALIZE DATA
+            const lpData = Array.isArray(resLaissezPasser.data)
+                ? resLaissezPasser.data
+                : [resLaissezPasser.data];
 
-            const lpResults = await Promise.all(lpRequests);
-
+            // 🔥 BUILD MAP: demandeId === demande.id
             const lpMap = {};
 
-            lpResults.forEach((r) => {
+            lpData.forEach((lp) => {
+                if (!lp || !lp.demandeId) return;
 
-                if (!r.data) return;
-
-                lpMap[r.id] = Array.isArray(r.data) ? r.data[0] : r.data;
+                lpMap[lp.demandeId] = lp;
             });
 
             setLaissezPasserMap(lpMap);
@@ -191,6 +192,7 @@ const AdminDemande = () => {
         e.preventDefault();
 
         try {
+            setLoadingOnda(true);
             const token = localStorage.getItem("token");
 
             const lp = laissezPasserMap[selectedDemandeId];
@@ -207,6 +209,7 @@ const AdminDemande = () => {
                         headers: { Authorization: `Bearer ${token}` }
                     }
                 );
+                addNotification("Date dépôt ONDA est ajoutée", "success");
             } else {
                 // ✅ UPDATE
                 await axios.put(
@@ -218,6 +221,7 @@ const AdminDemande = () => {
                         headers: { Authorization: `Bearer ${token}` }
                     }
                 );
+                addNotification("Date dépôt ONDA mise à jour", "success");
             }
 
             handleClose("onda");
@@ -229,6 +233,9 @@ const AdminDemande = () => {
         } catch (err) {
             console.error(err);
             setError("Erreur lors de l'enregistrement");
+            addNotification("Erreur lors de l'enregistrement", "error");
+        }finally {
+            setLoadingOnda(false);
         }
     };
 
@@ -236,11 +243,19 @@ const AdminDemande = () => {
         e.preventDefault();
 
         try {
+            setLoadingDelivrance(true);
+
             const token = localStorage.getItem("token");
+            const decoded = jwtDecode(token);
+
+            // 🔥 Keycloak user id is usually in "sub"
+            const userId = decoded.sub;
+
             const lp = laissezPasserMap[selectedDemandeId];
 
             if (!lp) {
                 setError("Aucun laissez-passer trouvé");
+                addNotification("Aucun laissez-passer trouvé", "error");
                 return;
             }
 
@@ -253,6 +268,10 @@ const AdminDemande = () => {
                     numLaissezPasser,
                     dateDelivrance,
                     dateExpiration,
+
+                    // ✅ ADD THIS
+                    userId: userId,
+
                     ...(imageBase64 && { imageUrl: imageBase64 }),
                     ...(quitusBase64 && { quitusPaiementUrl: quitusBase64 }),
                     statut: "ACTIF"
@@ -262,20 +281,21 @@ const AdminDemande = () => {
                 }
             );
 
-            // update demande status
             await axios.put(
-                `http://localhost:8080/api/demandes/${selectedDemandeId}/status?status=APPROUVEE`,
-                {},
+                `http://localhost:8080/api/demandes/${selectedDemandeId}/status`,
+                {
+                    status: "APPROUVEE"
+                },
                 {
                     headers: { Authorization: `Bearer ${token}` }
                 }
             );
 
-            // ✅ fetch first THEN close
+            addNotification("Laissez-passer délivré avec succès 🎉", "success");
+
             await fetchData();
             handleClose("delivrance");
 
-            // reset form
             setNumLaissezPasser("");
             setDateDelivrance("");
             setDateExpiration("");
@@ -286,6 +306,9 @@ const AdminDemande = () => {
         } catch (err) {
             console.error(err);
             setError("Erreur lors de l'enregistrement");
+            addNotification("Erreur lors de la délivrance", "error");
+        } finally {
+            setLoadingDelivrance(false);
         }
     };
 
@@ -461,8 +484,7 @@ const AdminDemande = () => {
                             <tbody>
                             {paginatedDemandes.length > 0 ? (
                                 paginatedDemandes.map((d) => {
-                                    const lp = laissezPasserMap[d.id]; // now always object or undefined
-
+                                    const lp = laissezPasserMap[String(d.id)];
                                     return (
                                         <tr key={d.id}>
                                             <td>{d.id}</td>
@@ -702,8 +724,18 @@ const AdminDemande = () => {
                                 <button type="button" className="cancel-btn" onClick={() => handleClose('onda')}>
                                     <i className="fa-solid fa-arrow-left"/> Annuler
                                 </button>
-                                <button type="submit" className="submit-btn">
-                                    Enregistrer <i className="fa-solid fa-arrow-right"/>
+                                <button
+                                    type="submit"
+                                    className="submit-btn"
+                                    disabled={loadingOnda}
+                                >
+                                    {loadingOnda ? (
+                                        <>
+                                            <span className="btn-spinner"></span>
+                                        </>
+                                    ) : (
+                                        "Enregistrer"
+                                    )}
                                 </button>
                             </div>
                         </form>
@@ -872,8 +904,18 @@ const AdminDemande = () => {
                                 <button type="button" className="cancel-btn" onClick={() => handleClose('delivrance')}>
                                     <i className="fa-solid fa-arrow-left"/> Annuler
                                 </button>
-                                <button type="submit" className="submit-btn">
-                                    Enregistrer <i className="fa-solid fa-arrow-right"/>
+                                <button
+                                    type="submit"
+                                    className="submit-btn"
+                                    disabled={loadingDelivrance}
+                                >
+                                    {loadingDelivrance ? (
+                                        <>
+                                            <span className="btn-spinner"></span>
+                                        </>
+                                    ) : (
+                                        "Délivrer"
+                                    )}
                                 </button>
                             </div>
                         </form>
