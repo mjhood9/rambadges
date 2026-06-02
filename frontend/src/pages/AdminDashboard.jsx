@@ -9,6 +9,10 @@ import { useNotification } from '../context/NotificationContext';
 const AdminDashboard = () => {
     const [users, setUsers] = useState([]);
     const [search, setSearch] = useState('');
+    const [sortConfig, setSortConfig] = useState({
+        key: null,
+        direction: "asc",
+    });
 
     const [showModal, setShowModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -34,6 +38,47 @@ const AdminDashboard = () => {
     const [deleting, setDeleting] = useState(false);
 
     const { addNotification } = useNotification();
+
+    const sortData = (data, key, direction) => {
+        if (!key) return data;
+
+        return [...data].sort((a, b) => {
+            let valA = a[key];
+            let valB = b[key];
+
+            // Handle nested values (optional safety)
+            if (typeof valA === "string") valA = valA.toLowerCase();
+            if (typeof valB === "string") valB = valB.toLowerCase();
+
+            // Handle dates
+            if (key.toLowerCase().includes("date") || key.toLowerCase().includes("created")) {
+                valA = new Date(valA);
+                valB = new Date(valB);
+            }
+
+            if (valA < valB) return direction === "asc" ? -1 : 1;
+            if (valA > valB) return direction === "asc" ? 1 : -1;
+            return 0;
+        });
+    };
+
+    const handleSort = (key) => {
+        setSortConfig((prev) => ({
+            key,
+            direction:
+                prev.key === key && prev.direction === "asc" ? "desc" : "asc",
+        }));
+    };
+
+    const getSortIcon = (key) => {
+        if (sortConfig.key !== key) {
+            return <i className="bx bx-equalizer" />;
+        }
+
+        return sortConfig.direction === "asc"
+            ? <i className="bx bx-up-arrow-alt" />
+            : <i className="bx bx-down-arrow-alt" />;
+    };
 
     const fetchAllEntites = async () => {
         try {
@@ -90,8 +135,12 @@ const AdminDashboard = () => {
     );
 
     const totalPages = Math.ceil(filtered.length / perPage);
-    const paginated = filtered.slice((currentPage - 1) * perPage, currentPage * perPage);
+    const sortedData = sortData(filtered, sortConfig.key, sortConfig.direction);
 
+    const paginated = sortedData.slice(
+        (currentPage - 1) * perPage,
+        currentPage * perPage
+    );
     const getPagination = () => {
         const pages = [];
 
@@ -301,9 +350,15 @@ const AdminDashboard = () => {
                         <table className="entite-table">
                             <thead>
                             <tr>
-                                <th>Nom</th>
-                                <th>Prénom</th>
-                                <th>Email</th>
+                                <th onClick={() => handleSort("lastName")} className="sortable-header">
+                                    Nom {getSortIcon("lastName")}
+                                </th>
+                                <th onClick={() => handleSort("firstName")} className="sortable-header">
+                                    Prénom {getSortIcon("firstName")}
+                                </th>
+                                <th onClick={() => handleSort("email")} className="sortable-header">
+                                    Email {getSortIcon("email")}
+                                </th>
                                 <th>Rôle(s)</th>
                                 <th style={{textAlign: 'right'}}>Actions</th>
                             </tr>

@@ -7,7 +7,7 @@ import java.util.List;
 
 public class DemandeRequest {
 
-    private Long userId;
+    private String userId;
     private String firstName;
     private String lastName;
     private String nationalite;
@@ -67,7 +67,7 @@ public class DemandeRequest {
     private String photoFile;
 
     // Getters
-    public Long getUserId() { return userId; }
+    public String getUserId() { return userId; }
     public String getFirstName() { return firstName; }
     public String getLastName() { return lastName; }
     public String getNationalite() { return nationalite; }
@@ -118,7 +118,7 @@ public class DemandeRequest {
     public String getPhotoFile() { return photoFile; }
 
     // Setters
-    public void setUserId(Long userId) { this.userId = userId; }
+    public void setUserId(String userId) { this.userId = userId; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
     public void setLastName(String lastName) { this.lastName = lastName; }
     public void setNationalite(String nationalite) { this.nationalite = nationalite; }

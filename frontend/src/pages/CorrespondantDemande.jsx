@@ -18,6 +18,16 @@ const CorrespondantDemande = () => {
     const [entites, setEntites] = useState([]);
     const [selectedDirection, setSelectedDirection] = useState("");
 
+    const [sortValidations, setSortValidations] = useState({
+        key: null,
+        direction: "none",
+    });
+
+    const [sortDemandes, setSortDemandes] = useState({
+        key: null,
+        direction: "none",
+    });
+
     const [validationDateFilter, setValidationDateFilter] = useState("");
     const [demandeDateFilter, setDemandeDateFilter] = useState("");
     const [demandeStatusDirecteurFilter, setDemandeStatusDirecteurFilter] = useState("");
@@ -51,6 +61,7 @@ const CorrespondantDemande = () => {
                 ]);
 
                 const allDemandes = demandesRes.data;
+                console.log("📦 ALL DEMANDES:", allDemandes);
 
                 setDemandes(allDemandes);
                 setEntites(entitesRes.data);
@@ -61,16 +72,24 @@ const CorrespondantDemande = () => {
                         params: { demandeId: d.id },
                         headers: { Authorization: `Bearer ${token}` }
                     })
-                        .then(res => ({ id: d.id, data: res.data }))
+                        .then(res => {
+                            console.log("📡 LP response for demande:", d.id, res.data);
+                            return { id: d.id, data: res.data };
+                        })
                         .catch(() => ({ id: d.id, data: null }))
                 );
 
                 const lpResults = await Promise.all(lpRequests);
 
-                // 3. BUILD MAP
+                const allLPs = lpResults.flatMap(r =>
+                    Array.isArray(r.data) ? r.data : (r.data ? [r.data] : [])
+                );
+
                 const lpMap = {};
-                lpResults.forEach((r) => {
-                    lpMap[r.id] = Array.isArray(r.data) ? r.data[0] : r.data;
+
+                allLPs.forEach(lp => {
+                    if (!lp?.demandeId) return;
+                    lpMap[lp.demandeId] = lp; // last one wins (or change if needed)
                 });
 
                 setLaissezPasserMap(lpMap);
@@ -92,6 +111,70 @@ const CorrespondantDemande = () => {
 
         fetchData();
     }, []);
+
+    const sortData = (data, config) => {
+        const { key, direction } = config;
+        if (!key || direction === "none") return data;
+
+        return [...data].sort((a, b) => {
+            let valA, valB;
+
+            if (key === "fullName") {
+                valA = `${a.firstName || ""} ${a.lastName || ""}`.toLowerCase();
+                valB = `${b.firstName || ""} ${b.lastName || ""}`.toLowerCase();
+            }
+            else if (key === "direction") {
+                valA = a.direction?.toLowerCase() || "";
+                valB = b.direction?.toLowerCase() || "";
+            }
+            else if (key === "id") {
+                valA = Number(a.id || 0);
+                valB = Number(b.id || 0);
+            }
+            else if (key === "date") {
+                valA = new Date(a.createdAt || 0);
+                valB = new Date(b.createdAt || 0);
+            }
+            else if (key === "dateDepotOnda") {
+                valA = new Date(a.laissezPasser?.dateDepotOnda || 0);
+                valB = new Date(b.laissezPasser?.dateDepotOnda || 0);
+            }
+            else if (key === "dateDelivrance") {
+                valA = new Date(a.laissezPasser?.dateDelivrance || 0);
+                valB = new Date(b.laissezPasser?.dateDelivrance || 0);
+            }
+            else {
+                valA = (a[key] || "").toString().toLowerCase();
+                valB = (b[key] || "").toString().toLowerCase();
+            }
+
+            if (valA < valB) return direction === "asc" ? -1 : 1;
+            if (valA > valB) return direction === "asc" ? 1 : -1;
+            return 0;
+        });
+    };
+
+    const handleSortValidations = (key) => {
+        setSortValidations((prev) => ({
+            key,
+            direction:
+                prev.key !== key ? "asc"
+                    : prev.direction === "asc" ? "desc"
+                        : prev.direction === "desc" ? "none"
+                            : "asc",
+        }));
+    };
+
+    const handleSortDemandes = (key) => {
+        setSortDemandes((prev) => ({
+            key,
+            direction:
+                prev.key !== key ? "asc"
+                    : prev.direction === "asc" ? "desc"
+                        : prev.direction === "desc" ? "none"
+                            : "asc",
+        }));
+    };
 
     // Filter entities locally based on search input
     const filteredDemandes = demandes.filter((d) => {
@@ -119,6 +202,7 @@ const CorrespondantDemande = () => {
         return matchSearch && matchDate && matchStatusDirecteur && matchStatusCorrespondant && matchDirection;
     });
 
+
     const filteredValidations = validations.filter((v) => {
         const matchSearch =
             (v.firstName + " " + v.lastName)
@@ -136,20 +220,28 @@ const CorrespondantDemande = () => {
         return matchSearch && matchDate && matchDirection;
     });
 
+    const enrichedDemandes = filteredDemandes.map(d => ({
+        ...d,
+        laissezPasser: laissezPasserMap[d.id] ?? null
+    }
+    ));
+
+    const sortedValidations = sortData(filteredValidations, sortValidations);
+    const sortedDemandes = sortData(enrichedDemandes, sortDemandes);
+
     // For "validations" table
     const totalPagesValidations = Math.ceil(filteredValidations.length / perPageValidations);
-    const paginatedValidations = filteredValidations.slice(
+    const paginatedValidations = sortedValidations.slice(
         (currentValidations - 1) * perPageValidations,
         currentValidations * perPageValidations
     );
 
 // For "demandes" table
     const totalPagesDemandes = Math.ceil(filteredDemandes.length / perPageDemandes);
-    const paginatedDemandes = filteredDemandes.slice(
+    const paginatedDemandes = sortedDemandes.slice(
         (currentDemandes - 1) * perPageDemandes,
         currentDemandes * perPageDemandes
     );
-
 
     const getPaginationRange = (current, total) => {
         const delta = 1;
@@ -197,6 +289,30 @@ const CorrespondantDemande = () => {
                 <p>Chargement...</p>
             </div>
         );
+
+    const thStyle = {
+        cursor: "pointer",
+        userSelect: "none",
+        padding: "12px 10px",
+        verticalAlign: "middle",
+    };
+
+    const getSortIcon = (config, key) => {
+        if (config.key !== key || config.direction === "none") {
+            return <i className="bx bx-equalizer" />;
+        }
+        if (config.direction === "asc") {
+            return <i className="bx bx-up-arrow-alt" />;
+        }
+        return <i className="bx bx-down-arrow-alt" />;
+    };
+
+    const SortHeader = ({ label, sortConfig, onClick, sortKey }) => (
+        <th onClick={() => onClick(sortKey)} style={thStyle}>
+            <span>{label}</span>
+            {getSortIcon(sortConfig, sortKey)}
+        </th>
+    );
 
     return (
         <>
@@ -421,10 +537,10 @@ const CorrespondantDemande = () => {
                                 <table className="entite-table">
                                     <thead>
                                     <tr>
-                                        <th>N° de demande</th>
-                                        <th>Date demande</th>
-                                        <th>Nom et Prénom</th>
-                                        <th>Direction</th>
+                                        <SortHeader label="N° de demande" sortKey="id" sortConfig={sortValidations} onClick={handleSortValidations} />
+                                        <SortHeader label="Date demande" sortKey="date" sortConfig={sortValidations} onClick={handleSortValidations} />
+                                        <SortHeader label="Nom et Prénom" sortKey="fullName" sortConfig={sortValidations} onClick={handleSortValidations} />
+                                        <SortHeader label="Direction" sortKey="direction" sortConfig={sortValidations} onClick={handleSortValidations} />
                                         <th>Portes d'accès</th>
                                         <th>Zones d'accès</th>
                                         <th>Secteurs de sûreté</th>
@@ -555,21 +671,32 @@ const CorrespondantDemande = () => {
                                 <table className="entite-table">
                                     <thead>
                                     <tr>
-                                        <th>N° de demande</th>
-                                        <th>Date demande</th>
-                                        <th>Nom et Prénom</th>
-                                        <th>Direction</th>
+                                        <SortHeader label="N° de demande" sortKey="id" sortConfig={sortDemandes} onClick={handleSortDemandes} />
+                                        <SortHeader label="Date demande" sortKey="date" sortConfig={sortDemandes} onClick={handleSortDemandes} />
+                                        <SortHeader label="Nom et Prénom" sortKey="fullName" sortConfig={sortDemandes} onClick={handleSortDemandes} />
+                                        <SortHeader label="Direction" sortKey="direction" sortConfig={sortDemandes} onClick={handleSortDemandes} />
                                         <th>Responsable Entité</th>
                                         <th>Correspondant Sûreté</th>
-                                        <th>Date Dépôt ONDA</th>
-                                        <th>Date Délivrance</th>
+                                        <SortHeader
+                                            label="Date Dépôt ONDA"
+                                            sortKey="dateDepotOnda"
+                                            sortConfig={sortDemandes}
+                                            onClick={handleSortDemandes}
+                                        />
+
+                                        <SortHeader
+                                            label="Date Délivrance"
+                                            sortKey="dateDelivrance"
+                                            sortConfig={sortDemandes}
+                                            onClick={handleSortDemandes}
+                                        />
                                         <th style={{ textAlign: 'right' }}>Détails</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     {paginatedDemandes.length > 0 ? (
                                         paginatedDemandes.map((d) => {
-                                            const lp = laissezPasserMap[d.id]; // 👈 important
+                                            const lp = d.laissezPasser; // 👈 important
 
                                             return (
                                             <tr key={d.id}>

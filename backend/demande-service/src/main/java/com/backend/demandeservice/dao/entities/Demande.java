@@ -20,7 +20,7 @@ public class Demande {
     private Long id;
 
     // User info
-    private Long userId;
+    private String userId;
     private String firstName;
     private String lastName;
     private String nationalite;
@@ -131,7 +131,7 @@ public class Demande {
 
     // Getters
     public Long getId() { return id; }
-    public Long getUserId() { return userId; }
+    public String getUserId() { return userId; }
     public String getFirstName() { return firstName; }
     public String getLastName() { return lastName; }
     public String getNationalite() { return nationalite; }
@@ -188,7 +188,7 @@ public class Demande {
 
     // Setters
     public void setId(Long id) { this.id = id; }
-    public void setUserId(Long userId) { this.userId = userId; }
+    public void setUserId(String userId) { this.userId = userId; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
     public void setLastName(String lastName) { this.lastName = lastName; }
     public void setNationalite(String nationalite) { this.nationalite = nationalite; }

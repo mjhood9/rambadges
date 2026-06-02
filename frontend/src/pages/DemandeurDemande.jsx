@@ -264,17 +264,9 @@ const DemandeurDemande = () => {
             setLoading(true);
             setShowLoadingModal(true);
 
-            const users = await fetchUsers();
-
-            const matchedUser = users.find(
-                u => u.email === decodedUser.email
-            );
-
-            if (!matchedUser) {
-                throw new Error("Utilisateur introuvable dans la base de données");
-            }
-
             const token = localStorage.getItem("token");
+            const decodedUser = jwtDecode(token);
+            const currentUserId = decodedUser.sub;
 
             const cnieFileString = formData.cnieFile
                 ? await fileToBase64(formData.cnieFile)
@@ -286,7 +278,7 @@ const DemandeurDemande = () => {
 
             const payload = {
                 ...formData,
-                userId: matchedUser.id,
+                userId: currentUserId,
                 cnieFile: cnieFileString,
                 photoFile: photoFileString
             };
@@ -368,6 +360,7 @@ const DemandeurDemande = () => {
                                         label="Date d'expiration"
                                         required
                                         selected={formData.dateExpiration}
+                                        futureOnly
                                         onChange={(date) =>
                                             setFormData((prev) => ({
                                                 ...prev,

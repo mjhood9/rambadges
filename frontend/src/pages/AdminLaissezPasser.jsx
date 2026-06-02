@@ -12,6 +12,10 @@ const AdminLaissezPasser = () => {
     const [demandes, setDemandes] = useState([]);
     const [entites, setEntites] = useState([]);
     const [laissezPasserMap, setLaissezPasserMap] = useState({});
+    const [sortConfig, setSortConfig] = useState({
+        key: null,
+        direction: "none",
+    });
 
     const [isStatutOpen, setIsStatutOpen] = useState(false);
     const [selectedDirection, setSelectedDirection] = useState("");
@@ -137,13 +141,98 @@ const AdminLaissezPasser = () => {
         );
     });
 
+    const sortData = (data, key, direction) => {
+        if (!key || direction === "none") return data;
+
+        return [...data].sort((a, b) => {
+            let valA;
+            let valB;
+
+            // 🔹 Full name (nested)
+            if (key === "fullName") {
+                valA = `${a.demande?.firstName || ""} ${a.demande?.lastName || ""}`.toLowerCase();
+                valB = `${b.demande?.firstName || ""} ${b.demande?.lastName || ""}`.toLowerCase();
+            }
+
+            // 🔹 Direction (nested)
+            else if (key === "direction") {
+                valA = (a.demande?.direction || "").toLowerCase();
+                valB = (b.demande?.direction || "").toLowerCase();
+            }
+
+            // 🔹 CNIE (YOU FORGOT THIS)
+            else if (key === "cnie") {
+                valA = (a.demande?.cnie || "").toLowerCase();
+                valB = (b.demande?.cnie || "").toLowerCase();
+            }
+
+            // 🔹 Number (LP number)
+            else if (key === "numLaissezPasser") {
+                valA = Number(a.numLaissezPasser || 0);
+                valB = Number(b.numLaissezPasser || 0);
+            }
+
+            // 🔹 Dates
+            else if (key === "dateDelivrance" || key === "dateExpiration") {
+                valA = new Date(a[key] || 0);
+                valB = new Date(b[key] || 0);
+            }
+
+            // 🔹 Default
+            else {
+                valA = (a[key] || "").toString().toLowerCase();
+                valB = (b[key] || "").toString().toLowerCase();
+            }
+
+            if (valA < valB) return direction === "asc" ? -1 : 1;
+            if (valA > valB) return direction === "asc" ? 1 : -1;
+            return 0;
+        });
+    };
+
+    const handleSort = (key) => {
+        setSortConfig((prev) => {
+            if (prev.key !== key) {
+                return { key, direction: "asc" };
+            }
+
+            if (prev.direction === "asc") {
+                return { key, direction: "desc" };
+            }
+
+            if (prev.direction === "desc") {
+                return { key: null, direction: "none" };
+            }
+
+            return { key, direction: "asc" };
+        });
+    };
+
     // ✅ PAGINATION
     const totalPagesLaissezPasser = Math.ceil(filteredLaissezPasser.length / perPageLaissezPasser);
 
-    const paginatedLaissezPasser = filteredLaissezPasser.slice(
+    const sortedLaissezPasser = sortData(
+        filteredLaissezPasser,
+        sortConfig.key,
+        sortConfig.direction
+    );
+
+    const paginatedLaissezPasser = sortedLaissezPasser.slice(
         (currentLaissezPasser - 1) * perPageLaissezPasser,
         currentLaissezPasser * perPageLaissezPasser
     );
+
+    const getSortIcon = (key) => {
+        if (sortConfig.key !== key || sortConfig.direction === "none") {
+            return <i className="bx bx-equalizer" />;
+        }
+
+        if (sortConfig.direction === "asc") {
+            return <i className="bx bx-up-arrow-alt" />;
+        }
+
+        return <i className="bx bx-down-arrow-alt" />;
+    };
 
     const getPaginationRange = (current, total) => {
         const delta = 1;
@@ -193,6 +282,18 @@ const AdminLaissezPasser = () => {
             </div>
         );
 
+    const sortThStyle = {
+        cursor: "pointer",
+        userSelect: "none",
+        padding: "12px 10px",
+        verticalAlign: "middle",
+    };
+    const SortHeader = ({ label, sortKey }) => (
+        <div className="sort-header">
+            <span style={{fontWeight:"600"}}>{label}</span>
+            {getSortIcon(sortKey)}
+        </div>
+    );
     return (
         <>
             <Helmet>
@@ -359,15 +460,43 @@ const AdminLaissezPasser = () => {
                         <table className="entite-table">
                             <thead>
                             <tr>
-                                <th>N° du laissez passer</th>
-                                <th>Zones/Secteurs touchées</th>
-                                <th>Nom et Prénom</th>
-                                <th>Direction</th>
-                                <th>N° CIN</th>
-                                <th>Date de délivrance</th>
-                                <th>Date d'expiration</th>
-                                <th>Statut</th>
-                                <th>Détails</th>
+
+                                <th style={sortThStyle} onClick={() => handleSort("numLaissezPasser")}>
+                                    <SortHeader label="N° LP" sortKey="numLaissezPasser" />
+                                </th>
+
+                                <th style={sortThStyle}>
+                                    Zones/Secteurs
+                                </th>
+
+                                <th style={sortThStyle} onClick={() => handleSort("fullName")}>
+                                    <SortHeader label="Nom et Prénom" sortKey="fullName" />
+                                </th>
+
+                                <th style={sortThStyle} onClick={() => handleSort("direction")}>
+                                    <SortHeader label="Direction" sortKey="direction" />
+                                </th>
+
+                                <th style={sortThStyle} onClick={() => handleSort("cnie")}>
+                                    <SortHeader label="CNIE" sortKey="cnie" />
+                                </th>
+
+                                <th style={sortThStyle} onClick={() => handleSort("dateDelivrance")}>
+                                    <SortHeader label="Date délivrance" sortKey="dateDelivrance" />
+                                </th>
+
+                                <th style={sortThStyle} onClick={() => handleSort("dateExpiration")}>
+                                    <SortHeader label="Date expiration" sortKey="dateExpiration" />
+                                </th>
+
+                                <th style={sortThStyle}>
+                                    Statut
+                                </th>
+
+                                <th style={sortThStyle}>
+                                    Détails
+                                </th>
+
                             </tr>
                             </thead>
 

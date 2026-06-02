@@ -2,7 +2,7 @@ package com.backend.demandeservice.dao.dtos;
 
 public class CommentaireRequest {
     private String content;
-    private Long userId;
+    private String userId;
     private Long demandeId;
 
     public String getContent() {
@@ -13,11 +13,11 @@ public class CommentaireRequest {
         this.content = content;
     }
 
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 

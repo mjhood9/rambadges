@@ -12,6 +12,7 @@ const DirecteurValidation = () => {
 
     const [showAcceptModal, setShowAcceptModal] = useState(false);
     const [showRefuseModal, setShowRefuseModal] = useState(false);
+    const [userMap, setUserMap] = useState({});
     const [demande, setDemande] = useState(null);
     const [loading, setLoading] = useState(true);
     const [acceptLoading, setAcceptLoading] = useState(false);
@@ -110,6 +111,13 @@ const DirecteurValidation = () => {
                 setDemande(resDemande.data);
                 setCommentaires(resComments.data);
                 setUsers(resUsers.data);
+                const map = {};
+
+                resUsers.data.forEach(user => {
+                    map[user.id] = user;
+                });
+
+                setUserMap(map);
 
                 const lpData = Array.isArray(resLaissezPasser.data)
                     ? resLaissezPasser.data
@@ -429,7 +437,8 @@ const DirecteurValidation = () => {
                                     <div className="summary-step1">
                                         <div className="summary-box">
                                             {commentaires.map((c, i) => {
-                                                const user = users?.[c.userId];
+
+                                                const user = userMap[c.userId];
 
                                                 return (
                                                     <p key={i}>

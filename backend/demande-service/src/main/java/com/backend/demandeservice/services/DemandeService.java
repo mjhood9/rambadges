@@ -3,8 +3,8 @@ package com.backend.demandeservice.services;
 import com.backend.demandeservice.clients.UserClient;
 import com.backend.demandeservice.dao.dtos.DemandeRequest;
 import com.backend.demandeservice.dao.dtos.UpdateStatusRequest;
-import com.backend.demandeservice.dao.dtos.UserResponse;
 import com.backend.demandeservice.dao.entities.Demande;
+import com.backend.demandeservice.dao.enums.DemandeStatus;
 import com.backend.demandeservice.dao.repositories.DemandeRepository;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
@@ -14,6 +14,7 @@ import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,25 +24,29 @@ import java.util.function.Supplier;
 @Service
 public class DemandeService {
 
+    @Value("${frontend.base-url}")
+    private String frontendBaseUrl;
+
     private static final Logger log = LoggerFactory.getLogger(DemandeService.class);
 
     private final DemandeRepository demandeRepository;
     private final Cloudinary cloudinary;
-    private final UserClient userClient;
     private final CircuitBreaker circuitBreaker;
+    private final EmailService emailService;
+    private final KeycloakUserService keycloakUserService;
     private final Retry retry;
 
     public DemandeService(
             DemandeRepository demandeRepository, CommentaireService commentaireService,
             Cloudinary cloudinary,
-            UserClient userClient,
-            CircuitBreakerRegistry circuitBreakerRegistry,
+            CircuitBreakerRegistry circuitBreakerRegistry, EmailService emailService, KeycloakUserService keycloakUserService,
             RetryRegistry retryRegistry
     ) {
         this.demandeRepository = demandeRepository;
         this.cloudinary = cloudinary;
-        this.userClient = userClient;
         this.circuitBreaker = circuitBreakerRegistry.circuitBreaker("demande-service");
+        this.emailService = emailService;
+        this.keycloakUserService = keycloakUserService;
         this.retry = retryRegistry.retry("demande-service");
     }
 
@@ -68,13 +73,6 @@ public class DemandeService {
     public Demande createDemande(DemandeRequest request) {
 
         return execute(() -> {
-
-            // verify user
-            UserResponse user = userClient.getUserById(request.getUserId());
-            if (user == null) {
-                throw new RuntimeException("User not found: " + request.getUserId());
-            }
-
             Demande demande = new Demande();
             mapRequestToDemande(request, demande);
 
@@ -107,7 +105,7 @@ public class DemandeService {
     // =========================
     // GET BY USER
     // =========================
-    public List<Demande> getDemandesByUser(Long userId) {
+    public List<Demande> getDemandesByUser(String userId) {
         return execute(() -> demandeRepository.findByUserId(userId), "getDemandesByUser");
     }
 
@@ -217,6 +215,12 @@ public class DemandeService {
             Demande demande = demandeRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Demande not found: " + id));
 
+            DemandeStatus oldStatusDirecteur = demande.getStatusDirecteur();
+            DemandeStatus oldStatusCorrespondant = demande.getStatusCorrespondant();
+
+            // ======================
+            // UPDATE FIELDS
+            // ======================
             if (request.getStatus() != null) {
                 demande.setStatus(request.getStatus());
             }
@@ -225,24 +229,132 @@ public class DemandeService {
                 demande.setStatusDirecteur(request.getStatusDirecteur());
             }
 
-            if(request.getSignatureDirecteur() != null){
+            if (request.getSignatureDirecteur() != null) {
                 demande.setSignatureDirecteur(request.getSignatureDirecteur());
             }
 
             if (Boolean.TRUE.equals(request.getClearStatusCorrespondant())) {
                 demande.setStatusCorrespondant(null);
-            }
-            else if (request.getStatusCorrespondant() != null) {
+            } else if (request.getStatusCorrespondant() != null) {
                 demande.setStatusCorrespondant(request.getStatusCorrespondant());
             }
 
-            if(request.getSignatureCorrespondant() != null){
+            if (request.getSignatureCorrespondant() != null) {
                 demande.setSignatureCorrespondant(request.getSignatureCorrespondant());
             }
 
-            return demandeRepository.save(demande);
+            Demande saved = demandeRepository.save(demande);
+
+            // ======================
+            // EMAIL NOTIFICATIONS
+            // ======================
+            notifyStatusEmails(saved, oldStatusDirecteur, oldStatusCorrespondant);
+
+            return saved;
 
         }, "updateStatus");
+    }
+
+    private void notifyStatusEmails(Demande demande,
+                                    DemandeStatus oldDir,
+                                    DemandeStatus oldCorr) {
+
+        String email = keycloakUserService.getUserEmail(demande.getUserId());
+
+        // ===== DIRECTEUR =====
+        if (isChanged(oldDir, demande.getStatusDirecteur())) {
+
+            if (isFinalStatus(demande.getStatusDirecteur())) {
+
+                sendEmail(
+                        demande,
+                        email,
+                        demande.getStatusDirecteur(),
+                        "Directeur De La Direction " + demande.getDirection()
+                );
+            }
+        }
+
+        // ===== CORRESPONDANT =====
+        if (isChanged(oldCorr, demande.getStatusCorrespondant())) {
+
+            if (isFinalStatus(demande.getStatusCorrespondant())) {
+
+                sendEmail(demande, email, demande.getStatusCorrespondant(), "Correspondant de Sûreté");
+            }
+        }
+    }
+
+    private boolean isChanged(DemandeStatus oldStatus, DemandeStatus newStatus) {
+        return newStatus != null && !newStatus.equals(oldStatus);
+    }
+
+    private boolean isFinalStatus(DemandeStatus status) {
+        return status == DemandeStatus.APPROUVEE
+                || status == DemandeStatus.REJETEE;
+    }
+
+    private void sendEmail(Demande demande,
+                           String to,
+                           DemandeStatus status,
+                           String role) {
+
+        String baseUrl = frontendBaseUrl;
+        String demandeurLink = baseUrl + "/demandeur/dashboard";
+
+        String subject;
+        String body;
+
+        String fullName = demande.getFirstName() + " " + demande.getLastName();
+        Long demandeId = demande.getId();
+
+        if (DemandeStatus.APPROUVEE.equals(status)) {
+
+            subject = "✔ Confirmation de validation de votre demande";
+
+            body = String.format(
+                    "Bonjour %s,\n\n" +
+                            "Nous vous informons que votre demande N°%d a été approuvée par %s.\n\n" +
+                            "✔ Statut : APPROUVÉE\n" +
+                            "📌 Décision prise par : %s\n\n" +
+                            "Vous pouvez consulter les détails de votre demande à tout moment via le lien ci-dessous :\n" +
+                            "%s\n\n" +
+                            "Nous vous remercions pour votre confiance.\n\n" +
+                            "Cordialement,\n" +
+                            "RAM Badge",
+                    fullName,
+                    demandeId,
+                    role,
+                    role,
+                    demandeurLink
+            );
+
+        } else if (DemandeStatus.REJETEE.equals(status)) {
+
+            subject = "✖ Notification de rejet de votre demande";
+
+            body = String.format(
+                    "Bonjour %s,\n\n" +
+                            "Nous vous informons que votre demande N°%d a été rejetée par %s.\n\n" +
+                            "✖ Statut : REJETÉE\n" +
+                            "📌 Décision prise par : %s\n\n" +
+                            "Vous pouvez consulter les détails de votre demande via le lien ci-dessous :\n" +
+                            "%s\n\n" +
+                            "Pour toute information complémentaire, veuillez contacter le service concerné.\n\n" +
+                            "Cordialement,\n" +
+                            "RAM Badge",
+                    fullName,
+                    demandeId,
+                    role,
+                    role,
+                    demandeurLink
+            );
+
+        } else {
+            return; // no email for other statuses
+        }
+
+        emailService.sendEmail(to, subject, body);
     }
 
     // =========================

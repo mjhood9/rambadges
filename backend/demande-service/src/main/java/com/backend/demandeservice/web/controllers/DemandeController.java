@@ -36,7 +36,7 @@ public class DemandeController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Demande>> getDemandesByUser(@PathVariable Long userId) {
+    public ResponseEntity<List<Demande>> getDemandesByUser(@PathVariable String userId) {
         return ResponseEntity.ok(demandeService.getDemandesByUser(userId));
     }
 

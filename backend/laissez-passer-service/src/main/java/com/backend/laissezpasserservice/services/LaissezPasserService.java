@@ -15,6 +15,7 @@ import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,9 @@ import java.util.function.Supplier;
 
 @Service
 public class LaissezPasserService {
+
+    @Value("${frontend.base-url}")
+    private String frontendBaseUrl;
 
     private static final Logger log = LoggerFactory.getLogger(LaissezPasserService.class);
 
@@ -81,12 +85,6 @@ public class LaissezPasserService {
     public LaissezPasser create(LaissezPasserRequestDTO request) {
 
         return execute(() -> {
-
-            // 🔗 Verify Demande exists via Feign
-            var demande = demandeClient.getDemandeById(request.getDemandeId());
-            if (demande == null) {
-                throw new RuntimeException("Demande not found: " + request.getDemandeId());
-            }
 
             LaissezPasser lp = new LaissezPasser();
 
@@ -202,12 +200,67 @@ public class LaissezPasserService {
                 lp.setQuitusPaiementPublicId(result.get("public_id").toString());
             }
 
-            // save and refetch from DB to get fresh data
+            // save
             repository.save(lp);
-            return repository.findById(id)
+
+            // refetch fresh entity
+            LaissezPasser saved = repository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Laissez-passer not found after save: " + id));
 
+            // trigger email
+            notifyLaissezPasserDelivered(saved);
+
+            return saved;
         }, "updateLaissezPasser");
+    }
+
+    private void notifyLaissezPasserDelivered(LaissezPasser lp) {
+
+        // ONLY send if all required fields exist
+        if (lp.getNumLaissezPasser() == null
+                || lp.getDateDelivrance() == null
+                || lp.getDateExpiration() == null) {
+            return;
+        }
+
+        String email = keycloakUserService.getUserEmail(lp.getUserId());
+
+        String subject = "Votre laissez-passer a été délivré";
+
+        String link = frontendBaseUrl + "/demandeur/dashboard/";
+
+        String body = buildDeliveredEmail(lp, link);
+
+        emailService.sendEmail(email, subject, body);
+    }
+
+    private String buildDeliveredEmail(LaissezPasser lp, String link) {
+
+        return """
+Bonjour,
+
+Nous avons le plaisir de vous informer que votre laissez-passer a été délivré avec succès.
+
+📄 Informations du laissez-passer :
+- Numéro : %s
+- Demande ID : %d
+- Date de délivrance : %s
+- Date d’expiration : %s
+
+🔗 Accès à votre laissez-passer :
+%s
+
+⚠️ Veuillez conserver ce document et vérifier sa validité régulièrement.
+
+Cordialement,
+RAM Badge
+""".formatted(
+                lp.getNumLaissezPasser(),
+                lp.getDemandeId(),
+                lp.getDateDelivrance(),
+                lp.getDateExpiration(),
+                link
+        );
     }
 
     // =========================

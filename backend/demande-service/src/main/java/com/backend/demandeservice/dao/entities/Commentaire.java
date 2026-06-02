@@ -14,7 +14,7 @@ public class Commentaire {
     @Column(nullable = false, length = 1000)
     private String content;
 
-    private Long userId;
+    private String userId;
 
     private Long demandeId;
 
@@ -41,11 +41,11 @@ public class Commentaire {
         this.content = content;
     }
 
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 

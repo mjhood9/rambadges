@@ -29,6 +29,16 @@ const DirecteurDemande = () => {
     const [perPageValidations, setPerPageValidations] = useState(5);
     const [perPageDemandes, setPerPageDemandes] = useState(5);
 
+    const [sortValidations, setSortValidations] = useState({
+        key: null,
+        direction: "none",
+    });
+
+    const [sortDemandes, setSortDemandes] = useState({
+        key: null,
+        direction: "none",
+    });
+
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) return;
@@ -123,11 +133,15 @@ const DirecteurDemande = () => {
 
                 const lpResults = await Promise.all(lpRequests);
 
+                const allLPs = lpResults.flatMap(r =>
+                    Array.isArray(r.data) ? r.data : (r.data ? [r.data] : [])
+                );
+
                 const lpMap = {};
-                lpResults.forEach((r) => {
-                    lpMap[r.id] = Array.isArray(r.data)
-                        ? r.data[0]
-                        : r.data;
+
+                allLPs.forEach(lp => {
+                    if (!lp?.demandeId) return;
+                    lpMap[lp.demandeId] = lp; // last one wins (or change if needed)
                 });
 
                 setLaissezPasserMap(lpMap);
@@ -141,6 +155,66 @@ const DirecteurDemande = () => {
 
         fetchData();
     }, []);
+
+    const sortData = (data, config) => {
+        const { key, direction } = config;
+        if (!key || direction === "none") return data;
+
+        return [...data].sort((a, b) => {
+            let valA, valB;
+
+            if (key === "fullName") {
+                valA = `${a.firstName || ""} ${a.lastName || ""}`.toLowerCase();
+                valB = `${b.firstName || ""} ${b.lastName || ""}`.toLowerCase();
+            }
+            else if (key === "id") {
+                valA = Number(a.id || 0);
+                valB = Number(b.id || 0);
+            }
+            else if (key === "date") {
+                valA = new Date(a.createdAt || 0);
+                valB = new Date(b.createdAt || 0);
+            }
+            else if (key === "dateDepotOnda") {
+                valA = new Date(a.laissezPasser?.dateDepotOnda || 0);
+                valB = new Date(b.laissezPasser?.dateDepotOnda || 0);
+            }
+            else if (key === "dateDelivrance") {
+                valA = new Date(a.laissezPasser?.dateDelivrance || 0);
+                valB = new Date(b.laissezPasser?.dateDelivrance || 0);
+            }
+            else {
+                valA = (a[key] || "").toString().toLowerCase();
+                valB = (b[key] || "").toString().toLowerCase();
+            }
+
+            if (valA < valB) return direction === "asc" ? -1 : 1;
+            if (valA > valB) return direction === "asc" ? 1 : -1;
+            return 0;
+        });
+    };
+
+    const handleSortValidations = (key) => {
+        setSortValidations((prev) => ({
+            key,
+            direction:
+                prev.key !== key ? "asc"
+                    : prev.direction === "asc" ? "desc"
+                        : prev.direction === "desc" ? "none"
+                            : "asc",
+        }));
+    };
+
+    const handleSortDemandes = (key) => {
+        setSortDemandes((prev) => ({
+            key,
+            direction:
+                prev.key !== key ? "asc"
+                    : prev.direction === "asc" ? "desc"
+                        : prev.direction === "desc" ? "none"
+                            : "asc",
+        }));
+    };
 
     // Filter entities locally based on search input
     const filteredDemandes = demandes.filter((d) => {
@@ -177,16 +251,25 @@ const DirecteurDemande = () => {
         return matchSearch && matchDate;
     });
 
+    const enrichedDemandes = filteredDemandes.map(d => ({
+            ...d,
+            laissezPasser: laissezPasserMap[d.id] ?? null
+        }
+    ));
+
+    const sortedValidations = sortData(filteredValidations, sortValidations);
+    const sortedDemandes = sortData(enrichedDemandes, sortDemandes);
+
     // For "validations" table
     const totalPagesValidations = Math.ceil(filteredValidations.length / perPageValidations);
-    const paginatedValidations = filteredValidations.slice(
+    const paginatedValidations = sortedValidations.slice(
         (currentValidations - 1) * perPageValidations,
         currentValidations * perPageValidations
     );
 
 // For "demandes" table
     const totalPagesDemandes = Math.ceil(filteredDemandes.length / perPageDemandes);
-    const paginatedDemandes = filteredDemandes.slice(
+    const paginatedDemandes = sortedDemandes.slice(
         (currentDemandes - 1) * perPageDemandes,
         currentDemandes * perPageDemandes
     );
@@ -238,6 +321,30 @@ const DirecteurDemande = () => {
                 <p>Chargement...</p>
             </div>
         );
+
+    const thStyle = {
+        cursor: "pointer",
+        userSelect: "none",
+        padding: "12px 10px",
+        verticalAlign: "middle",
+    };
+
+    const getSortIcon = (config, key) => {
+        if (config.key !== key || config.direction === "none") {
+            return <i className="bx bx-equalizer" />;
+        }
+        if (config.direction === "asc") {
+            return <i className="bx bx-up-arrow-alt" />;
+        }
+        return <i className="bx bx-down-arrow-alt" />;
+    };
+
+    const SortHeader = ({ label, sortConfig, onClick, sortKey }) => (
+        <th onClick={() => onClick(sortKey)} style={thStyle}>
+            <span>{label}</span>
+            {getSortIcon(sortConfig, sortKey)}
+        </th>
+    );
 
     return (
         <>
@@ -428,9 +535,9 @@ const DirecteurDemande = () => {
                                 <table className="entite-table">
                                     <thead>
                                     <tr>
-                                        <th>N° de demande</th>
-                                        <th>Date demande</th>
-                                        <th>Nom et Prénom</th>
+                                        <SortHeader label="N° de demande" sortKey="id" sortConfig={sortValidations} onClick={handleSortValidations} />
+                                        <SortHeader label="Date demande" sortKey="date" sortConfig={sortValidations} onClick={handleSortValidations} />
+                                        <SortHeader label="Nom et Prénom" sortKey="fullName" sortConfig={sortValidations} onClick={handleSortValidations} />
                                         <th>Portes d'accès</th>
                                         <th>Zones d'accès</th>
                                         <th>Secteurs de sûreté</th>
@@ -560,13 +667,24 @@ const DirecteurDemande = () => {
                                 <table className="entite-table">
                                     <thead>
                                     <tr>
-                                        <th>N° de demande</th>
-                                        <th>Date demande</th>
-                                        <th>Nom et Prénom</th>
+                                        <SortHeader label="N° de demande" sortKey="id" sortConfig={sortDemandes} onClick={handleSortDemandes} />
+                                        <SortHeader label="Date demande" sortKey="date" sortConfig={sortDemandes} onClick={handleSortDemandes} />
+                                        <SortHeader label="Nom et Prénom" sortKey="fullName" sortConfig={sortDemandes} onClick={handleSortDemandes} />
                                         <th>Responsable Entité</th>
                                         <th>Correspondant Sûreté</th>
-                                        <th>Date Dépôt ONDA</th>
-                                        <th>Date Délivrance</th>
+                                        <SortHeader
+                                            label="Date Dépôt ONDA"
+                                            sortKey="dateDepotOnda"
+                                            sortConfig={sortDemandes}
+                                            onClick={handleSortDemandes}
+                                        />
+
+                                        <SortHeader
+                                            label="Date Délivrance"
+                                            sortKey="dateDelivrance"
+                                            sortConfig={sortDemandes}
+                                            onClick={handleSortDemandes}
+                                        />
                                         <th style={{ textAlign: 'right' }}>Détails</th>
                                     </tr>
                                     </thead>

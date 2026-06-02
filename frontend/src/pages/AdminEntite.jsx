@@ -9,6 +9,8 @@ import { useNotification } from '../context/NotificationContext';
 const AdminEntite = () => {
     const [entites, setEntites] = useState([]);
     const [search, setSearch] = useState('');
+    const [sortAssigned, setSortAssigned] = useState({ key: null, direction: "asc" });
+    const [sortEntites, setSortEntites] = useState({ key: null, direction: "asc" });
     const [activeTab, setActiveTab] = useState('attribuees');
     const [currentPageAssigned, setCurrentPageAssigned] = useState(1);
     const [currentPageGestion, setCurrentPageGestion] = useState(1);
@@ -34,6 +36,37 @@ const AdminEntite = () => {
 
     const [closing, setClosing] = useState(false);
     const { addNotification } = useNotification();
+
+    const sortData = (data, sortConfig, keyExtractor) => {
+        if (!sortConfig.key) return data;
+
+        return [...data].sort((a, b) => {
+            const aValue = keyExtractor(a, sortConfig.key);
+            const bValue = keyExtractor(b, sortConfig.key);
+
+            if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+            if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+            return 0;
+        });
+    };
+    const filteredAssignedUsers = assignedUsers.filter(user =>
+        user.entite?.name.toLowerCase().includes(search.toLowerCase())
+    );
+
+    const sortedAssignedUsers = sortData(
+        filteredAssignedUsers,
+        sortAssigned,
+        (user, key) => {
+            switch (key) {
+                case "entite":
+                    return user.entite?.name || "";
+                case "user":
+                    return user.username || "";
+                default:
+                    return "";
+            }
+        }
+    );
 
     // Fetch all entities once on mount
     const fetchEntites = async () => {
@@ -85,24 +118,47 @@ const AdminEntite = () => {
         e.name.toLowerCase().includes(search.toLowerCase())
     );
 
-    const filteredAssignedUsers = assignedUsers.filter(user =>
-        user.entite?.name.toLowerCase().includes(search.toLowerCase())
-    );
 
+
+    const handleSortAssigned = (key) => {
+        setSortAssigned(prev => ({
+            key,
+            direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc"
+        }));
+    };
+
+    const handleSortEntites = (key) => {
+        setSortEntites(prev => ({
+            key,
+            direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc"
+        }));
+    };
     // For "attribuees" table
     const totalPagesAttribuees = Math.ceil(filteredAssignedUsers.length / perPageAttribuees);
-    const paginatedAssignedUsers = filteredAssignedUsers.slice(
+    const paginatedAssignedUsers = sortedAssignedUsers.slice(
         (currentPageAssigned - 1) * perPageAttribuees,
         currentPageAssigned * perPageAttribuees
     );
 
+    const sortedEntites = sortData(
+        filtered,
+        sortEntites,
+        (entite, key) => {
+            switch (key) {
+                case "name":
+                    return entite.name || "";
+                default:
+                    return "";
+            }
+        }
+    );
+
 // For "gestion" table
     const totalPagesGestion = Math.ceil(filtered.length / perPageGestion);
-    const paginatedEntites = filtered.slice(
+    const paginatedEntites = sortedEntites.slice(
         (currentPageGestion - 1) * perPageGestion,
         currentPageGestion * perPageGestion
     );
-
 
     const getPaginationRange = (current, total) => {
         const delta = 1;
@@ -128,6 +184,26 @@ const AdminEntite = () => {
         }
 
         return rangeWithDots;
+    };
+
+    const getSortIconAssigned = (key) => {
+        if (sortAssigned.key !== key || sortAssigned.direction === "none") {
+            return <i className="bx bx-equalizer" />; // default "="
+        }
+        if (sortAssigned.direction === "asc") {
+            return <i className="bx bx-up-arrow-alt" />;
+        }
+        return <i className="bx bx-down-arrow-alt" />;
+    };
+
+    const getSortIconEntites = (key) => {
+        if (sortEntites.key !== key || sortEntites.direction === "none") {
+            return <i className="bx bx-equalizer" />; // default "="
+        }
+        if (sortEntites.direction === "asc") {
+            return <i className="bx bx-up-arrow-alt" />;
+        }
+        return <i className="bx bx-down-arrow-alt" />;
     };
 
     // Close modal with animation
@@ -325,8 +401,13 @@ const AdminEntite = () => {
                                 <table className="entite-table">
                                     <thead>
                                     <tr>
-                                        <th>Entité</th>
-                                        <th>Responsable</th>
+                                        <th onClick={() => handleSortAssigned("entite")} style={{ cursor: "pointer" }}>
+                                            Entité {getSortIconAssigned("entite")}
+                                        </th>
+
+                                        <th onClick={() => handleSortAssigned("user")} style={{ cursor: "pointer" }}>
+                                            Responsable {getSortIconAssigned("user")}
+                                        </th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -435,7 +516,9 @@ const AdminEntite = () => {
                                 <table className="entite-table">
                                     <thead>
                                     <tr>
-                                        <th>Entité</th>
+                                        <th onClick={() => handleSortEntites("name")} style={{ cursor: "pointer" }}>
+                                            Entité {getSortIconEntites("name")}
+                                        </th>
                                         <th style={{ textAlign: 'right' }}>Détails</th>
                                     </tr>
                                     </thead>

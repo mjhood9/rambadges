@@ -5,39 +5,32 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b2312b33-151a-4423-8319-e81ba9f66f6f" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/3af0fa2c-1514-4f04-aac9-9ff32d312510.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/3af0fa2c-1514-4f04-aac9-9ff32d312510.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/3af0fa2c-1514-4f04-aac9-9ff32d312510/storage_v2/_src_/database/demandedb.eHVcGA/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/3af0fa2c-1514-4f04-aac9-9ff32d312510/storage_v2/_src_/database/demandedb.eHVcGA/schema/public.abK9xQ.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/3e7f0923-b50e-4928-9113-9c5182008d4b.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/3e7f0923-b50e-4928-9113-9c5182008d4b.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/3e7f0923-b50e-4928-9113-9c5182008d4b/storage_v2/_src_/database/postgres.edMnLQ/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/3e7f0923-b50e-4928-9113-9c5182008d4b/storage_v2/_src_/database/postgres.edMnLQ/schema/public.abK9xQ.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/3e7f0923-b50e-4928-9113-9c5182008d4b/storage_v2/_src_/database/userdb.iTErzg/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/3e7f0923-b50e-4928-9113-9c5182008d4b/storage_v2/_src_/database/userdb.iTErzg/schema/public.abK9xQ.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/96cdb55e-e4b8-4c4f-8de5-88e185dc19a4.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/96cdb55e-e4b8-4c4f-8de5-88e185dc19a4.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/96cdb55e-e4b8-4c4f-8de5-88e185dc19a4/storage_v2/_src_/database/laissezpasserdb.JZf5-g/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/96cdb55e-e4b8-4c4f-8de5-88e185dc19a4/storage_v2/_src_/database/laissezpasserdb.JZf5-g/schema/public.abK9xQ.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/ee9e9af4-0474-412a-858e-61f24666bce6.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/ee9e9af4-0474-412a-858e-61f24666bce6.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/ee9e9af4-0474-412a-858e-61f24666bce6/storage_v2/_src_/database/userdb.iTErzg/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/ee9e9af4-0474-412a-858e-61f24666bce6/storage_v2/_src_/database/userdb.iTErzg/schema/public.abK9xQ.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/f94863cb-2112-4700-beae-f194d31ff9d0.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/f94863cb-2112-4700-beae-f194d31ff9d0.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/f94863cb-2112-4700-beae-f194d31ff9d0/storage_v2/_src_/database/demandedb.eHVcGA/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/f94863cb-2112-4700-beae-f194d31ff9d0/storage_v2/_src_/database/demandedb.eHVcGA/schema/public.abK9xQ.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/api-gateway/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/api-gateway/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demande-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demande-service/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/dao/dtos/CommentaireRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/dao/dtos/CommentaireRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/dao/dtos/DemandeRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/dao/dtos/DemandeRequest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/dao/dtos/UpdateStatusRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/dao/dtos/UpdateStatusRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/dao/entities/Commentaire.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/dao/entities/Commentaire.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/dao/entities/Demande.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/dao/entities/Demande.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/dao/repositories/DemandeRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/dao/repositories/DemandeRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/services/DemandeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/services/DemandeService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/laissez-passer-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/laissez-passer-service/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/laissez-passer-service/src/main/java/com/backend/laissezpasserservice/LaissezPasserServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/laissez-passer-service/src/main/java/com/backend/laissezpasserservice/LaissezPasserServiceApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/laissez-passer-service/src/main/java/com/backend/laissezpasserservice/dao/dtos/LaissezPasserRequestDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/laissez-passer-service/src/main/java/com/backend/laissezpasserservice/dao/dtos/LaissezPasserRequestDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/laissez-passer-service/src/main/java/com/backend/laissezpasserservice/dao/dtos/LaissezPasserUpdateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/laissez-passer-service/src/main/java/com/backend/laissezpasserservice/dao/dtos/LaissezPasserUpdateRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/laissez-passer-service/src/main/java/com/backend/laissezpasserservice/dao/entities/LaissezPasser.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/laissez-passer-service/src/main/java/com/backend/laissezpasserservice/dao/entities/LaissezPasser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/web/controllers/DemandeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demande-service/src/main/java/com/backend/demandeservice/web/controllers/DemandeController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/demande-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/demande-service/src/main/resources/application.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/laissez-passer-service/src/main/java/com/backend/laissezpasserservice/services/LaissezPasserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/laissez-passer-service/src/main/java/com/backend/laissezpasserservice/services/LaissezPasserService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/laissez-passer-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/laissez-passer-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/assets/styles/main.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/assets/styles/main.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/layout/CustomDatePicker.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/layout/CustomDatePicker.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/AdminDashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/AdminDashboard.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/AdminDemande.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/AdminDemande.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/AdminDemandeDetails.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/AdminDemandeDetails.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/AdminEntite.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/AdminEntite.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/CorrespondantValidation.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/CorrespondantValidation.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/AdminLaissezPasser.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/AdminLaissezPasser.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/CorrespondantDemande.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/CorrespondantDemande.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/CorrespondantLaissezPasser.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/CorrespondantLaissezPasser.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/DemandeurDashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DemandeurDashboard.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/DemandeurDemande.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DemandeurDemande.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/DemandeurDetails.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DemandeurDetails.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/DirecteurDemande.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DirecteurDemande.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/DirecteurLaissezPasser.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DirecteurLaissezPasser.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/DirecteurValidation.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DirecteurValidation.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/routes/AppRoutes.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/routes/AppRoutes.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -99,6 +92,11 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.backend.demandeservice.services" />
+    </key>
+  </component>
   <component name="RunDashboard">
     <option name="configurationTypes">
       <set>
@@ -189,7 +187,12 @@
       <workItem from="1779174611041" duration="22049000" />
       <workItem from="1779202568950" duration="2944000" />
       <workItem from="1779391203367" duration="5465000" />
-      <workItem from="1779433124296" duration="1819000" />
+      <workItem from="1779433124296" duration="3242000" />
+      <workItem from="1779455627399" duration="1702000" />
+      <workItem from="1779459564651" duration="331000" />
+      <workItem from="1779466887477" duration="11938000" />
+      <workItem from="1780063588991" duration="4521000" />
+      <workItem from="1780336974853" duration="2476000" />
     </task>
     <servers />
   </component>

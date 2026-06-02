@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Helmet } from "react-helmet-async";
 import axios from 'axios';
-import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import "../assets/styles/main.css";
 import CustomSelect from "../components/layout/CustomSelect";
@@ -11,6 +10,10 @@ const AdminDemande = () => {
     const navigate = useNavigate();
 
     const [search, setSearch] = useState('');
+    const [sortConfig, setSortConfig] = useState({
+        key: null,
+        direction: "asc", // "asc" | "desc" | "none"
+    });
     const [demandes, setDemandes] = useState([]);
     const [entites, setEntites] = useState([]);
     const [laissezPasserMap, setLaissezPasserMap] = useState({});
@@ -44,6 +47,27 @@ const AdminDemande = () => {
     const [closing, setClosing] = useState(false);
 
     const { addNotification } = useNotification();
+
+    const handleSort = (key) => {
+        setSortConfig((prev) => {
+            if (prev.key === key) {
+                // cycle: none -> asc -> desc -> none
+                const nextDirection =
+                    prev.direction === "none"
+                        ? "asc"
+                        : prev.direction === "asc"
+                            ? "desc"
+                            : "none";
+
+                return {
+                    key: nextDirection === "none" ? null : key,
+                    direction: nextDirection,
+                };
+            }
+
+            return { key, direction: "asc" };
+        });
+    };
 
     const fileToBase64 = (file) => {
         return new Promise((resolve, reject) => {
@@ -154,13 +178,90 @@ const AdminDemande = () => {
         );
     });
 
+    const sortedDemandes = [...filteredDemandes].sort((a, b) => {
+        if (!sortConfig.key || sortConfig.direction === "none") return 0;
+
+        const lpA = laissezPasserMap[String(a.id)];
+        const lpB = laissezPasserMap[String(b.id)];
+
+        let aValue;
+        let bValue;
+
+        // =========================
+        // FULL NAME
+        // =========================
+        if (sortConfig.key === "fullName") {
+            aValue = `${a.firstName || ""} ${a.lastName || ""}`.toLowerCase();
+            bValue = `${b.firstName || ""} ${b.lastName || ""}`.toLowerCase();
+        }
+
+            // =========================
+            // DATE DEMANDE
+        // =========================
+        else if (sortConfig.key === "createdAt") {
+            aValue = new Date(a.createdAt);
+            bValue = new Date(b.createdAt);
+        }
+
+            // =========================
+            // DATE DEPOT ONDA
+        // =========================
+        else if (sortConfig.key === "dateDepotOnda") {
+            aValue = lpA?.dateDepotOnda ? new Date(lpA.dateDepotOnda) : null;
+            bValue = lpB?.dateDepotOnda ? new Date(lpB.dateDepotOnda) : null;
+        }
+
+            // =========================
+            // DATE DELIVRANCE
+        // =========================
+        else if (sortConfig.key === "dateDelivrance") {
+            aValue = lpA?.dateDelivrance ? new Date(lpA.dateDelivrance) : null;
+            bValue = lpB?.dateDelivrance ? new Date(lpB.dateDelivrance) : null;
+        }
+
+            // =========================
+            // DEFAULT STRING/NUMBER
+        // =========================
+        else {
+            aValue = a[sortConfig.key];
+            bValue = b[sortConfig.key];
+
+            if (typeof aValue === "string") {
+                aValue = aValue.toLowerCase();
+                bValue = (bValue || "").toLowerCase();
+            }
+        }
+
+        // =========================
+        // NULL SAFE COMPARISON
+        // =========================
+        if (aValue === null && bValue === null) return 0;
+        if (aValue === null) return sortConfig.direction === "asc" ? 1 : -1;
+        if (bValue === null) return sortConfig.direction === "asc" ? -1 : 1;
+
+        if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+        if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+
+        return 0;
+    });
+
     // ✅ PAGINATION
     const totalPagesDemandes = Math.ceil(filteredDemandes.length / perPageDemandes);
 
-    const paginatedDemandes = filteredDemandes.slice(
+    const paginatedDemandes = sortedDemandes.slice(
         (currentDemandes - 1) * perPageDemandes,
         currentDemandes * perPageDemandes
     );
+
+    const getSortIcon = (key) => {
+        if (sortConfig.key !== key || sortConfig.direction === "none") {
+            return <i className="bx bx-equalizer" />; // "=" default
+        }
+        if (sortConfig.direction === "asc") {
+            return <i className="bx bx-up-arrow-alt" />;
+        }
+        return <i className="bx bx-down-arrow-alt" />;
+    };
 
     const getPaginationRange = (current, total) => {
         const delta = 1;
@@ -240,28 +341,96 @@ const AdminDemande = () => {
     };
 
     const handleDelivranceSubmit = async (e) => {
+
         e.preventDefault();
 
         try {
+
             setLoadingDelivrance(true);
 
             const token = localStorage.getItem("token");
-            const decoded = jwtDecode(token);
-
-            // 🔥 Keycloak user id is usually in "sub"
-            const userId = decoded.sub;
 
             const lp = laissezPasserMap[selectedDemandeId];
 
             if (!lp) {
+
                 setError("Aucun laissez-passer trouvé");
-                addNotification("Aucun laissez-passer trouvé", "error");
+
+                addNotification(
+                    "Aucun laissez-passer trouvé",
+                    "error"
+                );
+
                 return;
             }
 
-            const imageBase64 = imageFile ? await fileToBase64(imageFile) : null;
-            const quitusBase64 = quitusFile ? await fileToBase64(quitusFile) : null;
+            // =========================
+            // GET DEMANDE
+            // =========================
+            const demandeRes = await axios.get(
+                `http://localhost:8080/api/demandes/${selectedDemandeId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
 
+            const demande = demandeRes.data;
+
+            const demandeFullName =
+                `${demande.firstName} ${demande.lastName}`.trim().toLowerCase();
+
+            // =========================
+            // GET ALL USERS
+            // =========================
+            const usersRes = await axios.get(
+                "http://localhost:8080/api/users",
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            // =========================
+            // FIND MATCHING USER
+            // =========================
+            const matchedUser = usersRes.data.find((u) => {
+
+                const userFullName =
+                    `${u.firstName} ${u.lastName}`.trim().toLowerCase();
+
+                return userFullName === demandeFullName;
+            });
+
+            if (!matchedUser) {
+
+                setError("Utilisateur introuvable");
+
+                addNotification(
+                    "Utilisateur introuvable",
+                    "error"
+                );
+
+                return;
+            }
+
+            // ✅ USE KEYCLOAK ID
+            const userId = matchedUser.keycloakId;
+
+            // =========================
+            // FILES
+            // =========================
+            const imageBase64 =
+                imageFile ? await fileToBase64(imageFile) : null;
+
+            const quitusBase64 =
+                quitusFile ? await fileToBase64(quitusFile) : null;
+
+            // =========================
+            // UPDATE LP
+            // =========================
             await axios.put(
                 `http://localhost:8080/api/laissezpasser/${lp.id}`,
                 {
@@ -269,33 +438,51 @@ const AdminDemande = () => {
                     dateDelivrance,
                     dateExpiration,
 
-                    // ✅ ADD THIS
+                    // ✅ REAL USER KEYCLOAK ID
                     userId: userId,
 
-                    ...(imageBase64 && { imageUrl: imageBase64 }),
-                    ...(quitusBase64 && { quitusPaiementUrl: quitusBase64 }),
+                    ...(imageBase64 && {
+                        imageUrl: imageBase64
+                    }),
+
+                    ...(quitusBase64 && {
+                        quitusPaiementUrl: quitusBase64
+                    }),
+
                     statut: "ACTIF"
                 },
                 {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
                 }
             );
 
+            // =========================
+            // UPDATE DEMANDE STATUS
+            // =========================
             await axios.put(
                 `http://localhost:8080/api/demandes/${selectedDemandeId}/status`,
                 {
                     status: "APPROUVEE"
                 },
                 {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
                 }
             );
 
-            addNotification("Laissez-passer délivré avec succès 🎉", "success");
+            addNotification(
+                "Laissez-passer délivré avec succès 🎉",
+                "success"
+            );
 
             await fetchData();
+
             handleClose("delivrance");
 
+            // reset form
             setNumLaissezPasser("");
             setDateDelivrance("");
             setDateExpiration("");
@@ -304,10 +491,18 @@ const AdminDemande = () => {
             setError(null);
 
         } catch (err) {
+
             console.error(err);
+
             setError("Erreur lors de l'enregistrement");
-            addNotification("Erreur lors de la délivrance", "error");
+
+            addNotification(
+                "Erreur lors de la délivrance",
+                "error"
+            );
+
         } finally {
+
             setLoadingDelivrance(false);
         }
     };
@@ -465,17 +660,29 @@ const AdminDemande = () => {
                         <table className="entite-table">
                             <thead>
                             <tr>
-                                <th>N° Demande</th>
-                                <th>Nom et Prénom</th>
-                                <th>Direction</th>
+                                <th onClick={() => handleSort("id")} style={{ cursor: "pointer" }}>
+                                    N° Demande {getSortIcon("id")}
+                                </th>
+                                <th onClick={() => handleSort("fullName")} style={{ cursor: "pointer" }}>
+                                    Nom et Prénom {getSortIcon("fullName")}
+                                </th>
+                                <th onClick={() => handleSort("direction")} style={{ cursor: "pointer" }}>
+                                    Direction {getSortIcon("direction")}
+                                </th>
                                 <th>Portes d'accès</th>
                                 <th>Secteurs de sûreté</th>
                                 <th>Zones d'accès</th>
-                                <th>Date demande</th>
+                                <th onClick={() => handleSort("createdAt")} style={{ cursor: "pointer" }}>
+                                    Date demande {getSortIcon("createdAt")}
+                                </th>
                                 <th>Responsable Entité</th>
                                 <th>Correspondant de sûreté</th>
-                                <th>Date Dépôt ONDA</th>
-                                <th>Date Délivrance</th>
+                                <th onClick={() => handleSort("dateDepotOnda")} style={{ cursor: "pointer" }}>
+                                    Date Dépôt ONDA {getSortIcon("dateDepotOnda")}
+                                </th>
+                                <th onClick={() => handleSort("dateDelivrance")} style={{ cursor: "pointer" }}>
+                                    Date Délivrance {getSortIcon("dateDelivrance")}
+                                </th>
                                 <th>Actions</th>
                                 <th>Détails</th>
                             </tr>
@@ -514,37 +721,53 @@ const AdminDemande = () => {
 
                                             <td>
                                                 <div className="action-btns">
-                                                    <button
-                                                        className="date-btn"
-                                                        onClick={() => {
-                                                            setSelectedDemandeId(d.id);
-                                                            setShowOndaModal(true);
-                                                        }}
-                                                        disabled={d.statusCorrespondant !== "APPROUVEE"}
-                                                        style={{
-                                                            opacity: d.statusCorrespondant !== "APPROUVEE" ? 0.4 : 1,
-                                                            cursor: d.statusCorrespondant !== "APPROUVEE"
-                                                                ? "not-allowed"
-                                                                : "pointer"
-                                                        }}
-                                                    >
-                                                        <i className="bx bx-calendar-check" />
-                                                    </button>
 
-                                                    <button
-                                                        className="date-btn"
-                                                        disabled={!lp}
-                                                        onClick={() => {
-                                                            setSelectedDemandeId(d.id);
-                                                            setShowDelivranceModal(true);
-                                                        }}
-                                                        style={{
-                                                            opacity: !lp ? 0.4 : 1,
-                                                            cursor: !lp ? "not-allowed" : "pointer"
-                                                        }}
-                                                    >
-                                                        <i className="bx bx-user-check" />
-                                                    </button>
+                                                    {/* DATE DEPOT ONDA */}
+                                                    <div className="tooltip-wrapper">
+                                                        <button
+                                                            className="date-btn"
+                                                            onClick={() => {
+                                                                setSelectedDemandeId(d.id);
+                                                                setShowOndaModal(true);
+                                                            }}
+                                                            disabled={d.statusCorrespondant !== "APPROUVEE"}
+                                                            style={{
+                                                                opacity: d.statusCorrespondant !== "APPROUVEE" ? 0.4 : 1,
+                                                                cursor: d.statusCorrespondant !== "APPROUVEE"
+                                                                    ? "not-allowed"
+                                                                    : "pointer"
+                                                            }}
+                                                        >
+                                                            <i className="bx bx-calendar-check" />
+                                                        </button>
+
+                                                        <span className="tooltip-text">
+                Ajouter / modifier la date de dépôt ONDA
+            </span>
+                                                    </div>
+
+                                                    {/* LAISSEZ-PASSER / DELIVRANCE */}
+                                                    <div className="tooltip-wrapper">
+                                                        <button
+                                                            className="date-btn"
+                                                            disabled={!lp}
+                                                            onClick={() => {
+                                                                setSelectedDemandeId(d.id);
+                                                                setShowDelivranceModal(true);
+                                                            }}
+                                                            style={{
+                                                                opacity: !lp ? 0.4 : 1,
+                                                                cursor: !lp ? "not-allowed" : "pointer"
+                                                            }}
+                                                        >
+                                                            <i className="bx bx-user-check" />
+                                                        </button>
+
+                                                        <span className="tooltip-text">
+                Créer ou délivrer le laissez-passer
+            </span>
+                                                    </div>
+
                                                 </div>
                                             </td>
 
@@ -761,7 +984,7 @@ const AdminDemande = () => {
                             <div className="form-group">
                                 <label>N° de laissez passer</label>
                                 <input
-                                    type="text"
+                                    type="number"
                                     placeholder="Saisissez ici"
                                     value={numLaissezPasser}
                                     onChange={(e) => setNumLaissezPasser(e.target.value)}
@@ -882,6 +1105,11 @@ const AdminDemande = () => {
                                         Choisir une image (jpg, png)
                                     </label>
                                 </div>
+                                {imageFile && (
+                                    <p style={{ marginTop: "6px", fontSize: "12px", color: "#555" }}>
+                                        📎 {imageFile.name}
+                                    </p>
+                                )}
                             </div>
                             <div className="form-group">
                                 <label>Quitus de paiement</label>
@@ -898,6 +1126,11 @@ const AdminDemande = () => {
                                         Choisir un fichier (pdf)
                                     </label>
                                 </div>
+                                {quitusFile && (
+                                    <p style={{ marginTop: "6px", fontSize: "12px", color: "#555" }}>
+                                        📎 {quitusFile.name}
+                                    </p>
+                                )}
                             </div>
                             {error && <span style={{color: '#e53935', fontSize: '12px'}}>{error}</span>}
                             <div className="modal-actions1">

@@ -22,7 +22,25 @@ const CustomInput = forwardRef(({ value, onClick, placeholder }, ref) => (
     </div>
 ));
 
-const CustomDatePicker = ({ selected, onChange, placeholder, label, required }) => {
+const CustomDatePicker = ({
+                              selected,
+                              onChange,
+                              placeholder,
+                              label,
+                              required,
+                              futureOnly,
+                              pastOnly,
+                              disabled
+                          }) => {
+    const getMinDate = () => {
+        if (futureOnly) return new Date();
+        return null;
+    };
+
+    const getMaxDate = () => {
+        if (pastOnly) return new Date();
+        return null;
+    };
     return (
         <div className="form-group">
             {label && (
@@ -39,8 +57,11 @@ const CustomDatePicker = ({ selected, onChange, placeholder, label, required }) 
                 showMonthDropdown
                 showYearDropdown
                 dropdownMode="select"
-                todayButton="Aujourd'hui"
+                todayButton="Aujourd\'hui"
                 locale="fr"
+                minDate={getMinDate()}
+                maxDate={getMaxDate()}
+                disabled={disabled}
             />
         </div>
     );

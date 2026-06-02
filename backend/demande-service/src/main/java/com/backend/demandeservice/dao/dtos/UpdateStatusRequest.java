@@ -9,7 +9,7 @@ public class UpdateStatusRequest {
     private DemandeStatus statusCorrespondant;
     private Boolean clearStatusCorrespondant;
     private String signatureCorrespondant;
-    private Long userId;
+    private String userId;
 
     public DemandeStatus getStatus() {
         return status;
@@ -28,11 +28,11 @@ public class UpdateStatusRequest {
     }
 
 
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 
